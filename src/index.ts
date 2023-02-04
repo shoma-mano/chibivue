@@ -16,24 +16,31 @@ class Vue {
 	constructor(options: ComponentOption) {
 		this.$options = options;
 		this.initState(this);
-		console.log(this);
 	}
 
 	mount(selector: string) {
 		this.$el = document.querySelector(selector)!;
 		this.$el.innerHTML = this._data!.message as string;
 
+		// TODO: compile template and bind event listener
 		this.$el.addEventListener("click", () => {
-			this.$options.methods?.changeMessage.apply(this._data);
+			(this as any).changeMessage();
 		});
 	}
 
 	initState(vm: Vue) {
-		const opt = vm.$options;
-		this.initDate(vm);
+		const opts = vm.$options;
+		this.initData(vm);
+		if (opts.methods) this.initMethods(vm, opts.methods);
 	}
 
-	initDate(vm: Vue) {
+	initMethods(vm: Vue, methods: { [key: string]: Function }) {
+		Object.keys(methods).forEach((key) => {
+			(vm as any)[key] = methods[key].bind(vm._data);
+		});
+	}
+
+	initData(vm: Vue) {
 		const data = this.$options.data();
 		const _data = { ...data };
 		Object.keys(data).forEach((key) => {
@@ -42,7 +49,6 @@ class Vue {
 					return _data[key];
 				},
 				set(newVal) {
-					console.log("set", newVal);
 					_data[key] = newVal;
 					vm.render();
 				},
