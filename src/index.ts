@@ -1,5 +1,5 @@
 import { initState } from "./core/instance/state";
-import { mountComponent } from "./lifecycle";
+import { mountComponent } from "./core/instance/lifecycle";
 
 type ComponentOption = {
 	data(): Record<string, unknown>;
