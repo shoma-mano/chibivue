@@ -1,5 +1,12 @@
 import { createApp } from "~/src/index";
 
+/**
+ * implicit
+ *
+ * <template>
+ *  <div id="app" v-on:click="changeMessage">{{ message }}</div>
+ * <template>
+ */
 const App = createApp({
 	data() {
 		return {
