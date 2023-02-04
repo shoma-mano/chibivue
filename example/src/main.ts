@@ -11,11 +11,13 @@ const App = createApp({
 	data() {
 		return {
 			message: "Hello chibi-vue!",
+			count: 0,
 		};
 	},
 	methods: {
 		changeMessage() {
-			this.message = "Hello chibi-vue! (changed)";
+			this.count++;
+			this.message = `Hello chibi-vue! (changed) ${this.count}`;
 		},
 	},
 });
