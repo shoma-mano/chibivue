@@ -1,3 +1,5 @@
+import { observe } from "./observer";
+
 type ComponentOption = {
 	data(): Record<string, unknown>;
 	methods?: { [key: string]: Function };
@@ -10,19 +12,20 @@ export const createApp = (options: ComponentOption): Vue => {
 
 class Vue {
 	$options: ComponentOption;
-	_data?: Record<string, unknown>;
 	$el?: HTMLElement;
+	_data?: Record<string, unknown>;
 
 	constructor(options: ComponentOption) {
 		this.$options = options;
+		this._data = options.data();
 		this.initState(this);
 	}
 
 	mount(selector: string) {
 		this.$el = document.querySelector(selector)!;
-		this.$el.innerHTML = this._data!.message as string;
 
 		// TODO: compile template and bind event listener
+		this.$el.innerHTML = this._data!.message as string;
 		this.$el.addEventListener("click", () => {
 			(this as any).changeMessage();
 		});
@@ -41,20 +44,11 @@ class Vue {
 	}
 
 	initData(vm: Vue) {
-		const data = this.$options.data();
-		const _data = { ...data };
-		Object.keys(data).forEach((key) => {
-			Object.defineProperty(data, key, {
-				get() {
-					return _data[key];
-				},
-				set(newVal) {
-					_data[key] = newVal;
-					vm.render();
-				},
-			});
-		});
-		vm._data = data;
+		observe(vm._data);
+		console.log(
+			"🚀 ~ file: index.ts:48 ~ Vue ~ initData ~ vm._data",
+			vm._data
+		);
 	}
 
 	render() {
