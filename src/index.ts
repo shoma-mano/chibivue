@@ -1,3 +1,4 @@
+import { mountComponent } from "./lifecycle";
 import { observe } from "./observer";
 
 type ComponentOption = {
@@ -10,9 +11,9 @@ export const createApp = (options: ComponentOption): Vue => {
 	return new Vue(options);
 };
 
-class Vue {
+export class Vue {
 	$options: ComponentOption;
-	$el?: HTMLElement;
+	$el: Element | null = null;
 	_data?: Record<string, unknown>;
 
 	constructor(options: ComponentOption) {
@@ -23,10 +24,11 @@ class Vue {
 
 	mount(selector: string) {
 		this.$el = document.querySelector(selector)!;
+		mountComponent(this, this.$el);
 
 		// TODO: compile template and bind event listener
-		this.$el.innerHTML = this._data!.message as string;
-		this.$el.addEventListener("click", () => {
+		this.$el!.innerHTML = this._data!.message as string;
+		this.$el!.addEventListener("click", () => {
 			(this as any).changeMessage();
 		});
 	}

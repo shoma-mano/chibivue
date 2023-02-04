@@ -9,6 +9,10 @@ export class Dep {
 		this.subs = [];
 	}
 
+	addSub(sub: DepTarget) {
+		this.subs.push(sub);
+	}
+
 	depend() {
 		if (Dep.target) {
 			Dep.target.addDep(this);
@@ -23,7 +27,7 @@ export class Dep {
 	}
 }
 
-interface DepTarget {
+export interface DepTarget {
 	id: number;
 	addDep(dep: Dep): void;
 	update(): void;
