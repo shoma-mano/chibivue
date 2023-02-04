@@ -1,5 +1,5 @@
+import { initState } from "./core/instance/state";
 import { mountComponent } from "./lifecycle";
-import { observe } from "./observer";
 
 type ComponentOption = {
 	data(): Record<string, unknown>;
@@ -19,7 +19,7 @@ export class Vue {
 	constructor(options: ComponentOption) {
 		this.$options = options;
 		this._data = options.data();
-		this.initState(this);
+		initState(this);
 	}
 
 	mount(selector: string) {
@@ -31,22 +31,6 @@ export class Vue {
 		this.$el!.addEventListener("click", () => {
 			(this as any).changeMessage();
 		});
-	}
-
-	initState(vm: Vue) {
-		const opts = vm.$options;
-		this.initData(vm);
-		if (opts.methods) this.initMethods(vm, opts.methods);
-	}
-
-	initMethods(vm: Vue, methods: { [key: string]: Function }) {
-		Object.keys(methods).forEach((key) => {
-			(vm as any)[key] = methods[key].bind(vm._data);
-		});
-	}
-
-	initData(vm: Vue) {
-		observe(vm._data);
 	}
 
 	render() {
