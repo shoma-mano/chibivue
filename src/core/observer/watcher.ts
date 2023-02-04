@@ -1,5 +1,5 @@
-import { Vue } from "..";
-import { isObject } from "../shared/utils";
+import { Vue } from "../..";
+import { isObject } from "../../shared/utils";
 import { Dep, DepTarget } from "./dep";
 
 let uid = 0;

@@ -1,6 +1,7 @@
 import { initState } from "./core/instance/state";
 import { mountComponent } from "./core/instance/lifecycle";
-import { Watcher } from "./observer/watcher";
+import { Watcher } from "./core/observer/watcher";
+import { compileToFunctions } from "./platforms/web/compiler";
 
 type ComponentOption = {
   data?: () => Record<string, unknown>;
@@ -26,6 +27,7 @@ export class Vue {
 
   mount(selector: string) {
     this.$el = document.querySelector(selector)!;
+    const render = compileToFunctions(this.$el!.outerHTML);
     mountComponent(this, this.$el);
 
     // TODO: compile template and bind event listener

@@ -1,6 +1,6 @@
 import { Vue } from "~/src";
-import { observe } from "~/src/observer";
-import { Watcher } from "~/src/observer/watcher";
+import { observe } from "~/src/core/observer";
+import { Watcher } from "~/src/core/observer/watcher";
 
 export function proxy(target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, {
