@@ -1,6 +1,7 @@
 type ComponentOption = {
 	data(): Record<string, unknown>;
 	methods?: { [key: string]: Function };
+	computed?: { [key: string]: Function };
 };
 
 export const createApp = (options: ComponentOption): Vue => {
@@ -14,7 +15,7 @@ class Vue {
 
 	constructor(options: ComponentOption) {
 		this.$options = options;
-		this.initState(options.data());
+		this.initState(this);
 		console.log(this);
 	}
 
@@ -27,9 +28,13 @@ class Vue {
 		});
 	}
 
-	initState(data: Record<string, unknown>) {
-		const vm = this;
+	initState(vm: Vue) {
+		const opt = vm.$options;
+		this.initDate(vm);
+	}
 
+	initDate(vm: Vue) {
+		const data = this.$options.data();
 		const _data = { ...data };
 		Object.keys(data).forEach((key) => {
 			Object.defineProperty(data, key, {
@@ -43,7 +48,6 @@ class Vue {
 				},
 			});
 		});
-
 		vm._data = data;
 	}
 
