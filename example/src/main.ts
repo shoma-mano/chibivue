@@ -6,6 +6,11 @@ const App = createApp({
 			message: "Hello chibi-vue!",
 		};
 	},
+	methods: {
+		changeMessage() {
+			this.message = "Hello chibi-vue! (changed)";
+		},
+	},
 });
 
 App.mount("#app");

@@ -1,5 +1,6 @@
 type ComponentOption = {
 	data(): Record<string, unknown>;
+	methods?: { [key: string]: Function };
 };
 
 export const createApp = (options: ComponentOption): Vue => {
@@ -9,6 +10,7 @@ export const createApp = (options: ComponentOption): Vue => {
 class Vue {
 	$options: ComponentOption;
 	_data: Record<string, unknown>;
+	$el: HTMLElement | null = null;
 
 	constructor(options: ComponentOption) {
 		this.$options = options;
@@ -17,7 +19,16 @@ class Vue {
 	}
 
 	mount(selector: string) {
-		const root = document.querySelector(selector)!;
-		root.innerHTML = this._data.message as string;
+		this.$el = document.querySelector(selector)!;
+		this.$el.innerHTML = this._data.message as string;
+
+		this.$el.addEventListener("click", () => {
+			this.$options.methods?.changeMessage.apply(this._data);
+			this.render();
+		});
+	}
+
+	render() {
+		this.$el!.innerHTML = this._data.message as string;
 	}
 }
