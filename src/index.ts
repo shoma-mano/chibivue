@@ -1,8 +1,9 @@
 import { initState } from "./core/instance/state";
 import { mountComponent } from "./core/instance/lifecycle";
+import { Watcher } from "./observer/watcher";
 
 type ComponentOption = {
-	data(): Record<string, unknown>;
+	data?: () => Record<string, unknown>;
 	methods?: { [key: string]: Function };
 	computed?: { [key: string]: Function };
 };
@@ -15,10 +16,11 @@ export class Vue {
 	$options: ComponentOption;
 	$el: Element | null = null;
 	_data?: Record<string, unknown>;
+	_computedWatchers: { [key: string]: Watcher } | null = null;
 
 	constructor(options: ComponentOption) {
 		this.$options = options;
-		this._data = options.data();
+		this._data = options.data?.();
 		initState(this);
 	}
 

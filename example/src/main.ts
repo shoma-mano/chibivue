@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createApp } from "~/src/index";
 
 /**
@@ -17,7 +18,12 @@ const App = createApp({
 	methods: {
 		changeMessage() {
 			this.count++;
-			this.message = `Hello chibi-vue! (changed) ${this.count}`;
+			this.message = `Hello chibi-vue! ${this.count} * 2 = ${this.countDouble}`;
+		},
+	},
+	computed: {
+		countDouble() {
+			return this.count * 2;
 		},
 	},
 });

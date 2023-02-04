@@ -12,7 +12,7 @@ export class Watcher implements DepTarget {
 	newDepIds: Set<number>;
 	vm?: Vue | null;
 
-	constructor(vm: Vue | null, getter: () => any, cb: Function) {
+	constructor(vm: Vue | null, getter: Function, cb: Function) {
 		this.id = uid++;
 		this.vm = vm;
 		this.cb = cb;
