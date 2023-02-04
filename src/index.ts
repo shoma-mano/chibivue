@@ -45,10 +45,6 @@ class Vue {
 
 	initData(vm: Vue) {
 		observe(vm._data);
-		console.log(
-			"🚀 ~ file: index.ts:48 ~ Vue ~ initData ~ vm._data",
-			vm._data
-		);
 	}
 
 	render() {
