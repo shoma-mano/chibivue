@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "~": process.cwd(),
+      "chibi-vue": `${process.cwd()}/src`,
     },
   },
 });

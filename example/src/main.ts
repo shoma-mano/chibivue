@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createApp } from "~/src/index";
+import { createApp } from "chibi-vue";
 
 const app = createApp({
   data() {
