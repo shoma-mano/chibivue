@@ -1,4 +1,4 @@
-import { Vue } from "~/src";
+import { Component } from "~/src/type/component";
 
 export class VNode {
   tag?: string;
@@ -6,5 +6,5 @@ export class VNode {
   on?: { [key: string]: Function };
   children?: Array<VNode> | null;
   text?: string;
-  componentInstance?: Vue; // rendered in this component's scope
+  componentInstance?: Component; // rendered in this component's scope
 }

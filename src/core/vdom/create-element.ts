@@ -1,8 +1,8 @@
-import { Vue } from "~/src";
+import { Component } from "~/src/type/component";
 
 // TODO: create vnode
 export function createElement(
-  context: Vue,
+  context: Component,
   tag: string,
   data: Record<string, Function>,
   children: string

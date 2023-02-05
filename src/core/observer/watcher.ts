@@ -1,4 +1,4 @@
-import { Vue } from "../..";
+import { Component } from "~/src/type/component";
 import { isObject } from "../../shared/utils";
 import { Dep, DepTarget } from "./dep";
 
@@ -10,9 +10,9 @@ export class Watcher implements DepTarget {
   cb: Function;
   getter: Function;
   newDepIds: Set<number>;
-  vm?: Vue | null;
+  vm?: Component | null;
 
-  constructor(vm: Vue | null, getter: Function, cb: Function) {
+  constructor(vm: Component | null, getter: Function, cb: Function) {
     this.id = uid++;
     this.vm = vm;
     this.cb = cb;

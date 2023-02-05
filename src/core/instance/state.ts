@@ -1,6 +1,6 @@
-import { Vue } from "~/src";
 import { observe } from "~/src/core/observer";
 import { Watcher } from "~/src/core/observer/watcher";
+import { Component } from "~/src/type/component";
 
 export function proxy(target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, {
@@ -15,27 +15,27 @@ export function proxy(target: Object, sourceKey: string, key: string) {
   });
 }
 
-export function initState(vm: Vue) {
+export function initState(vm: Component) {
   const opts = vm.$options;
   if (opts.data) initData(vm);
   if (opts.computed) initComputed(vm, opts.computed);
   if (opts.methods) initMethods(vm, opts.methods);
 }
 
-function initMethods(vm: Vue, methods: { [key: string]: Function }) {
+function initMethods(vm: Component, methods: { [key: string]: Function }) {
   Object.keys(methods).forEach((key) => {
     (vm as any)[key] = methods[key].bind(vm);
   });
 }
 
-function initData(vm: Vue) {
+function initData(vm: Component) {
   Object.keys(vm._data!).forEach((key) => {
     proxy(vm, `_data`, key);
   });
   observe(vm._data);
 }
 
-function initComputed(vm: Vue, computed: { [key: string]: Function }) {
+function initComputed(vm: Component, computed: { [key: string]: Function }) {
   const watchers = (vm._computedWatchers = Object.create(null));
 
   Object.entries(computed).forEach(([key, getter]) => {
@@ -53,7 +53,7 @@ export function defineComputed(target: unknown, key: string, getter: Function) {
 }
 
 function createGetterInvoker(fn: Function) {
-  return function computedGetter(this: Vue) {
+  return function computedGetter(this: Component) {
     return fn.call(this, this);
   };
 }
