@@ -1,14 +1,7 @@
 // @ts-nocheck
 import { createApp } from "~/src/index";
 
-/**
- * implicit
- *
- * <template>
- *  <div id="app" v-on:click="changeMessage">{{ message }}</div>
- * <template>
- */
-const App = createApp({
+const app = createApp({
   data() {
     return {
       message: "Hello chibi-vue!",
@@ -26,6 +19,17 @@ const App = createApp({
       return this.count * 2;
     },
   },
+  render(h) {
+    return h(
+      "div",
+      {
+        onClick() {
+          this.changeMessage();
+        },
+      },
+      this.message
+    );
+  },
 });
 
-App.mount("#app");
+app.mount("#app");
