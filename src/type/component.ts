@@ -1,4 +1,5 @@
 import { Watcher } from "../core/observer/watcher";
+import { VNode } from "../core/vdom/vnode";
 import { ComponentOption } from "./option";
 
 export class Component {
@@ -18,5 +19,5 @@ export class Component {
   _init!: Function;
   _update!: Function;
   // rendering
-  _render!: () => HTMLElement;
+  _render!: () => VNode;
 }

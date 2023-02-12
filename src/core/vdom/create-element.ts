@@ -1,20 +1,53 @@
 import { Component } from "~/src/type/component";
+import { VNode, createTextVNode } from "./vnode";
+import { VNodeData } from "~/src/type/vnode";
 
-// TODO: create vnode
 export function createElement(
   context: Component,
   tag: string,
-  data: Record<string, Function>,
-  children: string
-): HTMLElement {
-  const el = document.createElement(tag);
-  Object.entries(data).forEach(([key, value]) => {
+  data: Record<string, unknown>,
+  children: (VNode | string)[] | string
+): VNode {
+  const _children =
+    typeof children === "string"
+      ? [createTextVNode(children)]
+      : children.map((it) =>
+          typeof it === "string" ? createTextVNode(it) : it
+        );
+
+  return _createElement(context, tag, data, _children);
+}
+
+function _createElement(
+  context: Component,
+  tag?: string,
+  data?: Record<string, unknown>,
+  children?: Array<VNode>
+): VNode {
+  const vNodeData = Object.entries(data ?? {}).reduce((acc, [key, value]) => {
+    const on = acc.on ?? {};
+    const attr = acc.attrs ?? {};
+
     if (key.match(/^on(.+)/)) {
-      el.addEventListener(key.slice(2).toLowerCase(), () =>
-        value.apply(context)
-      );
+      return typeof value === "function"
+        ? {
+            ...acc,
+            on: {
+              ...on,
+              [key.slice(2).toLowerCase()]: value,
+            },
+          }
+        : acc;
     }
-  });
-  el.textContent = children;
-  return el;
+
+    return {
+      ...acc,
+      attrs: {
+        ...attr,
+        [key]: String(value),
+      },
+    };
+  }, {} as VNodeData);
+
+  return new VNode(tag, vNodeData, children, undefined, context);
 }

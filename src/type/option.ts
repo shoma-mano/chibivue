@@ -1,3 +1,5 @@
+import { VNode } from "../core/vdom/vnode";
+
 export type ComponentOption = {
   data?: () => Record<string, unknown>;
   methods?: { [key: string]: Function };
@@ -5,8 +7,8 @@ export type ComponentOption = {
   render?: (
     h: (
       tag: string,
-      data: Record<string, Function>,
-      children: string
-    ) => HTMLElement
-  ) => HTMLElement;
+      data: Record<string, unknown>,
+      children: (VNode | string)[] | string
+    ) => VNode
+  ) => VNode;
 };
