@@ -17,7 +17,14 @@ export class Component {
   // private methods
   // lifecycle
   _init!: Function;
-  _update!: Function;
+  _update!: (vNode: VNode) => void;
   // rendering
   _render!: () => VNode;
+
+  __patch__!: (
+    a: Element,
+    b: VNode,
+    parentElm?: any,
+    refElm?: any
+  ) => Element;
 }
