@@ -13,6 +13,7 @@ export class Component {
   // private properties
   _data!: Record<string, unknown>;
   _computedWatchers!: { [key: string]: Watcher };
+  _vnode?: VNode | null;
 
   // private methods
   // lifecycle
@@ -22,8 +23,8 @@ export class Component {
   _render!: () => VNode;
 
   __patch__!: (
-    a: Element,
-    b: VNode,
+    a: Element | VNode | null,
+    b: VNode | null,
     parentElm?: any,
     refElm?: any
   ) => Element;
