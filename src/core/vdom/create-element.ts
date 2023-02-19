@@ -49,5 +49,5 @@ function _createElement(
     };
   }, {} as VNodeData);
 
-  return new VNode(tag, vNodeData, children, undefined, context);
+  return new VNode(tag, vNodeData, children, undefined, undefined, context);
 }

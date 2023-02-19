@@ -15,12 +15,14 @@ export class VNode {
     data?: VNodeData,
     children?: Array<VNode> | null,
     text?: string,
+    elm?: Node,
     context?: Component
   ) {
     this.tag = tag;
     this.data = data;
     this.children = children;
     this.text = text;
+    this.elm = elm
     this.context = context;
   }
 }
