@@ -6,6 +6,8 @@ export class VNode {
   data?: VNodeData;
   children?: Array<VNode> | null;
   text?: string;
+  elm: Node | undefined;
+  parent: VNode | undefined | null;
   context?: Component;
 
   constructor(
