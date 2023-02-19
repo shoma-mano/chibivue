@@ -13,7 +13,6 @@ export function createApp(options: ComponentOption): App {
   return {
     mount(el: string | Element) {
       vm.$mount(el);
-      vm._update(vm._render()); // initial render
     },
   };
 }
