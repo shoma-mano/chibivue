@@ -15,6 +15,11 @@ export function mountComponent(vm: Component, el: Element): Component {
 export function lifecycleMixin(Vue: typeof Component) {
   Vue.prototype._update = function (vnode: VNode) {
     const vm: Component = this;
-    vm.$el = vm.__patch__(vm.$el, vnode);
+    const prevVnode = vm._vnode;
+    if (!prevVnode) {
+      vm.$el = vm.__patch__(vm.$el, vnode);
+    } else {
+      vm.$el = vm.__patch__(prevVnode, vnode);
+    }
   };
 }
