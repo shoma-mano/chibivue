@@ -1,7 +1,7 @@
-import { isArray, isDef, isPrimitive } from "../../shared/utils";
+import { isArray, isDef, isPrimitive } from "../shared/utils";
 import { VNode } from "./vnode";
 
-interface NodeOps {
+export interface RendererOptions {
   createElement(tagName: string): Element;
   createTextNode(text: string): Text;
   createComment(text: string): Comment;
@@ -14,8 +14,8 @@ interface NodeOps {
   setTextContent(node: Node, text: string): void;
 }
 
-export function createPatchFunction(backend: {
-  nodeOps: NodeOps;
+export function createRenderer(backend: {
+  nodeOps: RendererOptions;
 }): (oldVnode: VNode, vnode: VNode, parentElm?: Node) => Node | void {
   const { nodeOps } = backend;
 

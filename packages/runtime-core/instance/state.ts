@@ -1,6 +1,6 @@
-import { observe } from "../../core/observer";
-import { Watcher } from "../../core/observer/watcher";
-import { Component } from "../../type/component";
+import { observe } from "../../reactivity";
+import { Watcher } from "../../reactivity/watcher";
+import { Component } from "../component";
 
 export function proxy(target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, {

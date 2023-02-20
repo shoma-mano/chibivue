@@ -1,10 +1,10 @@
-import { Watcher } from "../core/observer/watcher";
-import { VNode } from "../core/vdom/vnode";
-import { ComponentOption } from "./option";
+import { Watcher } from "../reactivity/watcher";
+import { ComponentOptions } from "./componentOptions";
+import { VNode } from "./vnode";
 
 export class Component {
   // public properties
-  public $options!: ComponentOption;
+  public $options!: ComponentOptions;
   public $el!: Element;
 
   // public methods

@@ -1,6 +1,5 @@
-import { Component } from "../../type/component";
-import { createElement } from "../vdom/create-element";
-import { VNode } from "../vdom/vnode";
+import { Component } from "../component";
+import { VNode, createElement } from "../vnode";
 
 export function renderMixin(Vue: typeof Component) {
   Vue.prototype._render = function () {

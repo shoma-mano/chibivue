@@ -1,6 +1,6 @@
-import { VNode } from "../core/vdom/vnode";
+import { VNode } from "./vnode";
 
-export type ComponentOption = {
+export type ComponentOptions = {
   data?: () => Record<string, unknown>;
   methods?: { [key: string]: Function };
   computed?: { [key: string]: Function };

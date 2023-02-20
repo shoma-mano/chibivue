@@ -1,5 +1,5 @@
-import { Component } from "../../type/component";
-import { isObject } from "../../shared/utils";
+import { Component } from "../runtime-core";
+import { isObject } from "../shared/utils";
 import { Dep, DepTarget } from "./dep";
 
 let uid = 0;

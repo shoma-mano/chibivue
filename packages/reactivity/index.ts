@@ -1,4 +1,4 @@
-import { isArray, isPlainObject } from "../../shared/utils";
+import { isArray, isPlainObject } from "../shared/utils";
 import { Dep } from "./dep";
 
 export function observe(value: unknown): Observer | void {

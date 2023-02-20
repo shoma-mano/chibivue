@@ -1,10 +1,9 @@
 import { initMixin } from "./init";
 import { renderMixin } from "./render";
 import { lifecycleMixin } from "./lifecycle";
-import { Component } from "~/packages/type/component";
-import { ComponentOption } from "~/packages/type/option";
+import { Component, ComponentOptions } from "../../runtime-core";
 
-function Vue(this: Component, options: ComponentOption) {
+function Vue(this: Component, options: ComponentOptions) {
   this._init(options);
 }
 

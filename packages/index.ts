@@ -1,20 +1,3 @@
-import { Component } from "./type/component";
-import { ComponentOption } from "./type/option";
-import Vue from "./platforms/web/runtime";
+import { createApp } from "./runtime-dom";
 
-export interface App {
-  mount(el: string | Element): void;
-}
-
-export function createApp(options: ComponentOption): App {
-  // @ts-expect-error
-  const vm: Component = new Vue(options);
-
-  return {
-    mount(el: string | Element) {
-      vm.$mount(el);
-    },
-  };
-}
-
-export default Vue;
+export { createApp };

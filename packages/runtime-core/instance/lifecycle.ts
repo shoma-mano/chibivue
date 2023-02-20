@@ -1,6 +1,6 @@
-import { Component } from "../../type/component";
-import { Watcher } from "../observer/watcher";
-import { VNode } from "../vdom/vnode";
+import { Component } from "../component";
+import { Watcher } from "../../reactivity/watcher";
+import { VNode } from "../vnode";
 
 export function mountComponent(vm: Component, el: Element): Component {
   vm.$el = el;

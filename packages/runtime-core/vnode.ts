@@ -1,6 +1,40 @@
-import { Component } from "../../type/component";
-import { VNodeData } from "../../type/vnode";
-import { VNode, createTextVNode } from "./vnode";
+import { Component } from "./component";
+
+export class VNode {
+  tag?: string;
+  data?: VNodeData;
+  children?: Array<VNode> | null;
+  text?: string;
+  elm: Node | undefined;
+  parent: VNode | undefined | null;
+  context?: Component;
+
+  constructor(
+    tag?: string,
+    data?: VNodeData,
+    children?: Array<VNode> | null,
+    text?: string,
+    elm?: Node,
+    context?: Component
+  ) {
+    this.tag = tag;
+    this.data = data;
+    this.children = children;
+    this.text = text;
+    this.elm = elm;
+    this.context = context;
+  }
+}
+
+export interface VNodeData {
+  on?: { [key: string]: Function };
+  attrs?: { [key: string]: string };
+  [key: string]: any;
+}
+
+export function createTextVNode(val: string | number) {
+  return new VNode(undefined, undefined, undefined, String(val));
+}
 
 export function createElement(
   context: Component,
