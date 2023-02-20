@@ -1,4 +1,4 @@
-import { Component } from "~/src/type/component";
+import { Component } from "../../type/component";
 import { isObject } from "../../shared/utils";
 import { Dep, DepTarget } from "./dep";
 

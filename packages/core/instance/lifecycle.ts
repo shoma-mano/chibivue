@@ -1,4 +1,4 @@
-import { Component } from "~/src/type/component";
+import { Component } from "../../type/component";
 import { Watcher } from "../observer/watcher";
 import { VNode } from "../vdom/vnode";
 

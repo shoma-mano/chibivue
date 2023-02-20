@@ -1,5 +1,5 @@
-import { VNode } from "~/src/core/vdom/vnode";
-import { isUndef } from "~/src/shared/utils";
+import { VNode } from "../../../../core/vdom/vnode";
+import { isUndef } from "../../../../shared/utils";
 
 let target: any;
 

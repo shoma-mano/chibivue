@@ -1,5 +1,5 @@
-import { Component } from "~/src/type/component";
-import { VNodeData } from "~/src/type/vnode";
+import { Component } from "../../type/component";
+import { VNodeData } from "../../type/vnode";
 
 export class VNode {
   tag?: string;
@@ -22,7 +22,7 @@ export class VNode {
     this.data = data;
     this.children = children;
     this.text = text;
-    this.elm = elm
+    this.elm = elm;
     this.context = context;
   }
 }

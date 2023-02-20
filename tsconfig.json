@@ -13,7 +13,7 @@
     "moduleResolution": "node"
   },
   "include": [
-    "src/**/*.ts",
+    "packages/**/*.ts",
     "example/src/main.ts"
   ],
   "exclude": [

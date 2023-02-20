@@ -1,6 +1,6 @@
-import { Component } from "~/src/type/component";
+import { Component } from "../../type/component";
+import { VNodeData } from "../../type/vnode";
 import { VNode, createTextVNode } from "./vnode";
-import { VNodeData } from "~/src/type/vnode";
 
 export function createElement(
   context: Component,

@@ -1,6 +1,6 @@
-import { Component } from "~/src/type/component";
+import { Component } from "../../type/component";
+import { ComponentOption } from "../../type/option";
 import { initState } from "./state";
-import { ComponentOption } from "~/src/type/option";
 
 export function initMixin(Vue: typeof Component) {
   Vue.prototype._init = function (options: ComponentOption) {

@@ -1,4 +1,4 @@
-import { isArray, isDef, isPrimitive } from "~/src/shared/utils";
+import { isArray, isDef, isPrimitive } from "../../shared/utils";
 import { VNode } from "./vnode";
 
 interface NodeOps {

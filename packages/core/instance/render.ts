@@ -1,4 +1,4 @@
-import { Component } from "~/src/type/component";
+import { Component } from "../../type/component";
 import { createElement } from "../vdom/create-element";
 import { VNode } from "../vdom/vnode";
 

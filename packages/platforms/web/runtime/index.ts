@@ -1,6 +1,6 @@
-import Vue from "~/src/core/instance";
-import { mountComponent } from "~/src/core/instance/lifecycle";
-import { Component } from "~/src/type/component";
+import Vue from "../../../core/instance";
+import { mountComponent } from "../../../core/instance/lifecycle";
+import { Component } from "../../../type/component";
 import { patch } from "./patch";
 
 // install platform patch function
