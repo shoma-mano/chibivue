@@ -2,11 +2,11 @@
   "name": "chibi-vue",
   "version": "1.0.0",
   "scripts": {
-    "dev": "cd example/chibi-vue_render && pnpm i && pnpm run start"
+    "start": "vite"
   },
   "author": "Ubugeeei <ubuge1122@gmail.com>",
   "devDependencies": {
-    "@types/node": "^17.0.21"
+    "vite": "^3.0.9"
   },
   "volta": {
     "node": "18.14.0"
