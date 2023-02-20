@@ -2,7 +2,7 @@
   "name": "chibi-vue",
   "version": "1.0.0",
   "scripts": {
-    "start": "vite"
+    "dev": "vite"
   },
   "author": "Ubugeeei <ubuge1122@gmail.com>",
   "devDependencies": {

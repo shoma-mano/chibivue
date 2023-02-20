@@ -2,7 +2,8 @@
   "name": "chibi-vue",
   "version": "1.0.0",
   "scripts": {
-    "dev": "cd example/chibi-vue_render && pnpm i && pnpm run start"
+    "dev:render": "cd example/chibi-vue_render && pnpm i && pnpm run dev",
+    "dev:render:org": "cd example/vue_render && pnpm i && pnpm run dev"
   },
   "author": "Ubugeeei <ubuge1122@gmail.com>",
   "devDependencies": {
