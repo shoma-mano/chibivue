@@ -1,6 +1,12 @@
 import { isArray, isDef, isPrimitive } from "../shared/utils";
 import { VNode } from "./vnode";
 
+export type RootRenderFunction<HostElement> = (
+  vnode: VNode | null,
+  container: HostElement,
+  isSVG?: boolean
+) => void;
+
 export interface RendererOptions {
   createElement(tagName: string): Element;
   createTextNode(text: string): Text;
