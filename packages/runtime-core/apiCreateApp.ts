@@ -3,7 +3,6 @@ import { RootRenderFunction } from "./renderer";
 import { createVNode } from "./vnode";
 
 export interface App<HostElement = any> {
-  _container: HostElement | null;
   mount(rootContainer: HostElement): void;
 }
 
@@ -19,9 +18,7 @@ export function createAppAPI<HostElement>(
       mount(rootContainer: HostElement) {
         const vnode = createVNode(rootComponent as Component);
         render(vnode, rootContainer);
-        app._container = rootContainer;
       },
-      _container: null,
     };
 
     return app;
