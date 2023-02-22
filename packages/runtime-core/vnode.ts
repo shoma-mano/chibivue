@@ -1,87 +1,82 @@
-import { Component } from "./component";
+import { ShapeFlags } from "../shared/shapeFlags";
+import { isArray } from "../shared/utils";
+import { Component, Data } from "./component";
+import { currentRenderingInstance } from "./componentRenderContext";
 
-export class VNode {
-  tag?: string;
-  data?: VNodeData;
-  children?: Array<VNode> | null;
-  text?: string;
-  elm: Node | undefined;
-  parent: VNode | undefined | null;
-  context?: Component;
+export type VNodeTypes = VNode | typeof Text | Component;
+export const Text = Symbol();
 
-  constructor(
-    tag?: string,
-    data?: VNodeData,
-    children?: Array<VNode> | null,
-    text?: string,
-    elm?: Node,
-    context?: Component
-  ) {
-    this.tag = tag;
-    this.data = data;
-    this.children = children;
-    this.text = text;
-    this.elm = elm;
-    this.context = context;
-  }
+export interface VNode<HostNode = any> {
+  __v_isVNode: true;
+  type: VNodeTypes;
+  props: VNodeProps | null;
+  el: HostNode | undefined;
+  children: VNodeNormalizedChildren;
+  ctx: Component | null;
+  shapeFlag: number;
 }
 
-export interface VNodeData {
-  on?: { [key: string]: Function };
-  attrs?: { [key: string]: string };
+export interface VNodeProps {
   [key: string]: any;
 }
 
-export function createTextVNode(val: string | number) {
-  return new VNode(undefined, undefined, undefined, String(val));
+export type VNodeNormalizedChildren = string | VNodeArrayChildren;
+
+export type VNodeChild = VNodeChildAtom | VNodeArrayChildren;
+export type VNodeArrayChildren = Array<VNodeArrayChildren | VNodeChildAtom>;
+type VNodeChildAtom = VNode | string;
+
+export function isVNode(value: unknown): value is VNode {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "__v_isVNode" in value &&
+    value.__v_isVNode === true
+  );
 }
 
-export function createElement(
-  context: Component,
-  tag: string,
-  data: Record<string, unknown>,
-  children: (VNode | string)[] | string
-): VNode {
-  const _children =
-    typeof children === "string"
-      ? [createTextVNode(children)]
-      : children.map((it) =>
-          typeof it === "string" ? createTextVNode(it) : it
-        );
+export const createVNode = (
+  type: VNodeTypes,
+  props: VNodeProps | null = null,
+  children: unknown = null
+) => {
+  return createBaseVNode(type, props, children);
+};
 
-  return _createElement(context, tag, data, _children);
+function createBaseVNode(
+  type: VNodeTypes,
+  props: VNodeProps | null,
+  children: unknown
+): VNode {
+  const vnode = {
+    type,
+    props,
+    children,
+    el: null,
+    ctx: currentRenderingInstance,
+    shapeFlag: ShapeFlags.ELEMENT,
+  } as VNode;
+
+  if (isVNode(type)) {
+    normalizeChildren(vnode, children);
+  }
+
+  return vnode;
 }
 
-function _createElement(
-  context: Component,
-  tag?: string,
-  data?: Record<string, unknown>,
-  children?: Array<VNode>
-): VNode {
-  const vNodeData = Object.entries(data ?? {}).reduce((acc, [key, value]) => {
-    const on = acc.on ?? {};
-    const attr = acc.attrs ?? {};
+export function normalizeChildren(vnode: VNode, children: unknown) {
+  let type = 0;
+  if (children == null) {
+    children = null;
+  } else if (isArray(children)) {
+    type = ShapeFlags.ARRAY_CHILDREN;
+  } else {
+    children = [createTextVNode(String(children))];
+  }
+  vnode.children = children as VNodeNormalizedChildren;
+  vnode.shapeFlag |= type;
+}
 
-    if (key.match(/^on(.+)/)) {
-      return typeof value === "function"
-        ? {
-            ...acc,
-            on: {
-              ...on,
-              [key.slice(2).toLowerCase()]: value,
-            },
-          }
-        : acc;
-    }
-
-    return {
-      ...acc,
-      attrs: {
-        ...attr,
-        [key]: String(value),
-      },
-    };
-  }, {} as VNodeData);
-
-  return new VNode(tag, vNodeData, children, undefined, undefined, context);
+export function createTextVNode(text: string = " "): VNode {
+  return createVNode(Text, null, text);
 }
