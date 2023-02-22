@@ -1,8 +1,10 @@
 import { Component } from "./component";
 import { RootRenderFunction } from "./renderer";
+import { createVNode } from "./vnode";
 
 export interface App<HostElement = any> {
-  mount(rootContainer: HostElement | string): void;
+  _container: HostElement | null;
+  mount(rootContainer: HostElement): void;
 }
 
 export type CreateAppFunction<HostElement> = (
@@ -14,18 +16,12 @@ export function createAppAPI<HostElement>(
 ): CreateAppFunction<HostElement> {
   return function createApp(rootComponent) {
     const app: App = {
-      mount(rootContainer: HostElement | string) {
-        // TODO:
-        // const vnode = createVNode(
-        //   rootComponent as ConcreteComponent,
-        //   rootProps
-        // )
-        // render(vnode, rootContainer)
-        // // store app context on the root VNode.
-        // // this will be set on the root instance on initial mount.
-        // vnode.appContext = context
-        // app._container = rootContainer
+      mount(rootContainer: HostElement) {
+        const vnode = createVNode(rootComponent as Component);
+        render(vnode, rootContainer);
+        app._container = rootContainer;
       },
+      _container: null,
     };
 
     return app;
