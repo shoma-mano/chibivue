@@ -29,3 +29,5 @@ export class Component {
     refElm?: any
   ) => Element;
 }
+
+export type Data = Record<string, unknown>;
