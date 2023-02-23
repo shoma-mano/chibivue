@@ -24,13 +24,6 @@ export class ComponentPublicInstance {
   _update!: (vNode: VNode) => void;
   // rendering
   _render!: () => VNode;
-
-  __patch__!: (
-    a: Element | VNode | null,
-    b: VNode | null,
-    parentElm?: any,
-    refElm?: any
-  ) => Element;
 }
 
 export type Data = Record<string, unknown>;

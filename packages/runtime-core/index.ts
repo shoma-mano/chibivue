@@ -7,3 +7,4 @@ export {
   createTextVNode,
   createVNode,
 } from "./vnode";
+export { CreateAppFunction } from "./apiCreateApp";
