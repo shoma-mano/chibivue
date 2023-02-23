@@ -1,136 +1,184 @@
-import { isArray, isDef, isPrimitive } from "../shared/utils";
-import { VNode } from "./vnode";
+import { ShapeFlags } from "../shared/shapeFlags";
+import { createAppAPI } from "./apiCreateApp";
+import {
+  ComponentInternalInstance,
+  createComponentInstance,
+} from "./component";
+import { Text, VNode, VNodeArrayChildren, normalizeVNode } from "./vnode";
 
-export type RootRenderFunction<HostElement> = (
+export interface RendererOptions<
+  HostNode = RendererNode,
+  HostElement = RendererElement
+> {
+  insert(
+    parentNode: HostNode,
+    newNode: HostNode,
+    referenceNode: HostNode
+  ): void;
+  remove(node: HostNode, child: HostNode): void;
+
+  createElement(tagName: string): HostElement;
+  createComment(text: string): HostNode;
+  createText(text: string): Text;
+
+  setText(node: HostNode, text: string): void;
+  setElementText(node: HostElement, text: string): void;
+
+  parentNode(node: HostNode): HostNode | null;
+  nextSibling(node: HostNode): HostNode | null;
+}
+
+export interface RendererNode {
+  [key: string]: any;
+}
+
+export interface RendererElement extends RendererNode {}
+
+export type RootRenderFunction<HostElement = RendererElement> = (
   vnode: VNode | null,
   container: HostElement,
   isSVG?: boolean
 ) => void;
 
-export interface RendererOptions {
-  createElement(tagName: string): Element;
-  createTextNode(text: string): Text;
-  createComment(text: string): Comment;
-  insertBefore(parentNode: Node, newNode: Node, referenceNode: Node): void;
-  removeChild(node: Node, child: Node): void;
-  appendChild(node: Node, child: Node): void;
-  parentNode(node: Node): ParentNode | null;
-  nextSibling(node: Node): ChildNode | null;
-  tagName(node: Element): string;
-  setTextContent(node: Node, text: string): void;
-}
+type PatchFn = (
+  n1: VNode | null, // null means this is a mount
+  n2: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
 
-export function createRenderer(backend: {
-  nodeOps: RendererOptions;
-}): (oldVnode: VNode, vnode: VNode, parentElm?: Node) => Node | void {
-  const { nodeOps } = backend;
+type ProcessTextOrCommentFn = (
+  n1: VNode | null,
+  n2: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
 
-  function emptyNodeAt(elm: Element) {
-    return new VNode(
-      nodeOps.tagName(elm).toLowerCase(),
-      {},
-      [],
-      undefined,
-      elm
-    );
-  }
+type MountChildrenFn = (
+  children: VNodeArrayChildren,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
 
-  function removeNode(el: Node) {
-    const parent = nodeOps.parentNode(el);
-    // element may have already been removed due to v-html / v-text
-    if (isDef(parent)) {
-      nodeOps.removeChild(parent, el);
+type MountComponentFn = (
+  initialVNode: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
+
+export function createRenderer<HostElement = RendererElement>(
+  options: RendererOptions
+) {
+  const {
+    insert: hostInsert,
+    remove: hostRemove,
+    createElement: hostCreateElement,
+    createText: hostCreateText,
+    createComment: hostCreateComment,
+    setElementText: hostSetElementText,
+    parentNode: hostParentNode,
+    nextSibling: hostNextSibling,
+  } = options;
+
+  const patch: PatchFn = (n1, n2, container, anchor) => {
+    const { type, shapeFlag } = n2;
+    if (type === Text) {
+      processText(n1, n2, container, anchor);
+    } else if (shapeFlag & ShapeFlags.ELEMENT) {
+      processElement(n1, n2, container, anchor);
+    } else if (shapeFlag & ShapeFlags.COMPONENT) {
+      processComponent(n1, n2, container, anchor);
     }
-  }
+  };
 
-  function createElm(
-    vnode: VNode,
-    insertedVnodeQueue: VNode[],
-    parentElm?: Node | null,
-    refElm?: Node | null
-  ) {
-    // TODO:
-    // const data = vnode.data;
-    const children = vnode.children;
-    const tag = vnode.tag;
-    if (isDef(tag)) {
-      vnode.elm = nodeOps.createElement(tag);
-      createChildren(vnode, children, insertedVnodeQueue);
-      // TODO:
-      // if (isDef(data)) {
-      //   invokeCreateHooks(vnode, insertedVnodeQueue);
-      // }
-      insert(parentElm, vnode.elm, refElm);
-    } else {
-      vnode.elm = nodeOps.createTextNode(vnode.text!);
-      insert(parentElm, vnode.elm, refElm);
-    }
-  }
-
-  function createChildren(
-    vnode: VNode,
-    children: VNode["children"],
-    insertedVnodeQueue: VNode[]
-  ) {
-    if (isArray(children)) {
-      for (let i = 0; i < children.length; ++i) {
-        createElm(children[i], insertedVnodeQueue, vnode.elm, null);
-      }
-    } else if (isPrimitive(vnode.text)) {
-      nodeOps.appendChild(
-        vnode.elm!,
-        nodeOps.createTextNode(String(vnode.text))
+  const processText: ProcessTextOrCommentFn = (n1, n2, container, anchor) => {
+    if (n1 == null) {
+      hostInsert(
+        (n2.el = hostCreateText(n2.children as string)),
+        container,
+        anchor!
       );
+    } else {
+      // TODO: patch text
     }
-  }
+  };
 
-  function insert(parent: Node | null | undefined, elm: Node, ref?: any) {
-    if (isDef(parent)) {
-      if (isDef(ref)) {
-        if (nodeOps.parentNode(ref) === parent) {
-          nodeOps.insertBefore(parent, elm, ref);
-        }
-      } else {
-        nodeOps.appendChild(parent, elm);
-      }
+  const processElement = (
+    n1: VNode | null,
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null
+  ) => {
+    if (n1 == null) {
+      mountElement(n2, container, anchor);
+    } else {
+      // TODO: patch element
     }
-  }
+  };
 
-  function removeVnodes(vnodes: VNode[], startIdx: number, endIdx: number) {
-    for (; startIdx <= endIdx; ++startIdx) {
-      const ch = vnodes[startIdx];
-      if (isDef(ch)) {
-        removeNode(ch.elm!);
-      }
+  const processComponent = (
+    n1: VNode | null,
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null
+  ) => {
+    if (n1 == null) {
+      mountComponent(n2, container, anchor);
+    } else {
+      // TODO: patch component
     }
-  }
+  };
 
-  return function patch(oldVnode: VNode | Node, vnode: VNode): Node | void {
-    const insertedVnodeQueue: VNode[] = [];
+  const mountElement = (
+    vnode: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null
+  ) => {
+    let el: RendererElement;
+    const { type, props, shapeFlag } = vnode;
 
-    const isRealElement = isDef((oldVnode as Node).nodeType);
-    if (isRealElement) {
-      // mounting to a real element
-      oldVnode = emptyNodeAt(oldVnode as Element);
-    }
-
-    // replacing existing element
-    const oldElm = (oldVnode as VNode).elm!;
-    const parentElm = nodeOps.parentNode(oldElm);
-
-    // create new node
-    createElm(
-      vnode,
-      insertedVnodeQueue,
-      parentElm,
-      nodeOps.nextSibling(oldElm)
-    );
-
-    // destroy old node
-    if (isDef(parentElm)) {
-      removeVnodes([oldVnode as VNode], 0, 0);
+    el = vnode.el = hostCreateElement(type as string);
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      hostSetElementText(el, vnode.children as string);
+    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      mountChildren(vnode.children as VNodeArrayChildren, el, null);
     }
 
-    return vnode.elm!;
+    // TODO: props
+
+    hostInsert(el, container, anchor!);
+  };
+
+  const mountChildren: MountChildrenFn = (children, container, anchor) => {
+    for (let i = 0; i < children.length; i++) {
+      const child = normalizeVNode(children[i]);
+      patch(null, child, container, anchor);
+    }
+  };
+
+  const mountComponent: MountComponentFn = (
+    initialVNode,
+    container,
+    anchor
+  ) => {
+    // prettier-ignore
+    const instance: ComponentInternalInstance = (initialVNode.component =createComponentInstance(initialVNode));
+
+    // TODO:
+    // setupRenderEffect(instance, initialVNode, container, anchor);
+  };
+
+  const render: RootRenderFunction = (vnode, container) => {
+    if (vnode === null) {
+      // TODO: unmount
+    } else {
+      patch((container as any)._vnode || null, vnode, container, null);
+    }
+    (container as any)._vnode = vnode;
+  };
+
+  return {
+    render,
+    createApp: createAppAPI(render),
   };
 }
