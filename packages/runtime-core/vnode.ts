@@ -87,3 +87,32 @@ export function normalizeChildren(vnode: VNode, children: unknown) {
 export function createTextVNode(text: string = " "): VNode {
   return createVNode(Text, null, text);
 }
+
+export function normalizeVNode(child: VNodeChild): VNode {
+  if (isArray(child)) {
+    // TODO: fragment
+    throw new Error();
+  } else if (typeof child === "object") {
+    return cloneVNode(child);
+  } else {
+    // strings and numbers
+    return createVNode(Text, null, String(child));
+  }
+}
+
+export function cloneVNode<T>(vnode: VNode<T>): VNode<T> {
+  const { props, children } = vnode;
+  const cloned: VNode<T> = {
+    __v_isVNode: true,
+    type: vnode.type,
+    props,
+    children: isArray(children)
+      ? (children as VNode[]).map(cloneVNode)
+      : children,
+    component: vnode.component,
+    shapeFlag: vnode.shapeFlag,
+    el: vnode.el,
+    ctx: vnode.ctx,
+  };
+  return cloned;
+}
