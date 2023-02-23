@@ -11,7 +11,7 @@ function updateDOMListeners(oldVnode: VNode, vnode: VNode) {
   const oldOn = oldVnode.data?.on || {};
   // vnode is empty when removing all listeners,
   // and use old vnode dom element
-  target = vnode.elm || oldVnode.elm;
+  target = vnode.el || oldVnode.el;
   // TODO:
   // updateListeners(on, oldOn, add, remove, createOnceHandler, vnode.context);
   target = undefined;
