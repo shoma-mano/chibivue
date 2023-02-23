@@ -1,4 +1,4 @@
-export { Component as Component } from "./component";
+export { ComponentPublicInstance as ComponentPublicInstance } from "./componentPublicInstance";
 export { ComponentOptions } from "./componentOptions";
 export { RendererOptions, createRenderer } from "./renderer";
 export {
