@@ -9,6 +9,7 @@ const app = createApp({
   },
   methods: {
     changeMessage() {
+      console.log(this);
       this.count++;
       this.message = `Hello chibi-vue! ${this.count} * 2 = ${this.countDouble}`;
     },

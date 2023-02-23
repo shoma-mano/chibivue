@@ -1,3 +1,12 @@
+import { ReactiveEffect } from "./effect";
+
+export type _Dep = Set<ReactiveEffect>;
+
+export const createDep = (effects?: ReactiveEffect[]): _Dep => {
+  const dep: _Dep = new Set<ReactiveEffect>(effects);
+  return dep;
+};
+
 let uid = 0;
 export class Dep {
   static target?: DepTarget | null;

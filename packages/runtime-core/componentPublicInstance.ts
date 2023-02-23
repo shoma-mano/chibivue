@@ -1,4 +1,4 @@
-import { Watcher } from "../reactivity/watcher";
+import { Watcher } from "../reactivity/effect";
 import { ComponentInternalInstance } from "./component";
 import { ComponentOptions } from "./componentOptions";
 import { VNode } from "./vnode";

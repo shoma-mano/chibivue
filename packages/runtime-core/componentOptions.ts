@@ -1,4 +1,4 @@
-import { reactive } from "../reactivity";
+import { observe } from "../reactivity";
 import { ComponentInternalInstance, Data } from "./component";
 import { VNode } from "./vnode";
 
@@ -23,7 +23,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
 
   if (dataOptions) {
     const data = dataOptions.call(publicThis);
-    instance.data = reactive(data) as unknown as Data; // TODO: type
+    instance.data = observe(data) as unknown as Data; // TODO: type
   }
 
   if (computedOptions) {
