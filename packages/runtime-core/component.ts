@@ -1,33 +1,50 @@
-import { Watcher } from "../reactivity/watcher";
 import { ComponentOptions } from "./componentOptions";
 import { VNode } from "./vnode";
 
-export class Component {
-  // public properties
-  public $options!: ComponentOptions;
-  public $el!: Element;
+export type ConcreteComponent = ComponentOptions;
 
-  // public methods
-  public $mount!: (el?: Element | string) => Component;
+export interface ComponentInternalInstance {
+  type: ConcreteComponent;
 
-  // private properties
-  _data!: Record<string, unknown>;
-  _computedWatchers!: { [key: string]: Watcher };
-  _vnode?: VNode | null;
+  /**
+   * Vnode representing this component in its parent's vdom tree
+   */
+  vnode: VNode;
 
-  // private methods
-  // lifecycle
-  _init!: Function;
-  _update!: (vNode: VNode) => void;
-  // rendering
-  _render!: () => VNode;
+  // TODO:
+  // effect: ReactiveEffect
+  // render: InternalRenderFunction | null
+  // directives: Record<string, Directive> | null
+  // proxy: ComponentPublicInstance | null
+  // ctx: Data
 
-  __patch__!: (
-    a: Element | VNode | null,
-    b: VNode | null,
-    parentElm?: any,
-    refElm?: any
-  ) => Element;
+  // state
+  // data: Data
+  // props: Data
+  // attrs: Data
+  // emit: EmitFn
+
+  // [LifecycleHooks.BEFORE_CREATE]: LifecycleHook
+  // [LifecycleHooks.CREATED]: LifecycleHook
+  // [LifecycleHooks.BEFORE_MOUNT]: LifecycleHook
+  // [LifecycleHooks.MOUNTED]: LifecycleHook
+  // [LifecycleHooks.BEFORE_UPDATE]: LifecycleHook
+  // [LifecycleHooks.UPDATED]: LifecycleHook
+  // [LifecycleHooks.BEFORE_UNMOUNT]: LifecycleHook
+  // [LifecycleHooks.UNMOUNTED]: LifecycleHook
+  // [LifecycleHooks.RENDER_TRACKED]: LifecycleHook
+  // [LifecycleHooks.RENDER_TRIGGERED]: LifecycleHook
+  // [LifecycleHooks.ACTIVATED]: LifecycleHook
+  // [LifecycleHooks.DEACTIVATED]: LifecycleHook
+  // [LifecycleHooks.ERROR_CAPTURED]: LifecycleHook
+  // [LifecycleHooks.SERVER_PREFETCH]: LifecycleHook<() => Promise<unknown>>
 }
 
-export type Data = Record<string, unknown>;
+export function createComponentInstance(
+  vnode: VNode
+): ComponentInternalInstance {
+  const type = vnode.type as ConcreteComponent;
+  const instance: ComponentInternalInstance = { type, vnode };
+
+  return instance;
+}
