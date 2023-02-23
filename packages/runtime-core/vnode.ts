@@ -1,9 +1,14 @@
 import { ShapeFlags } from "../shared/shapeFlags";
 import { isArray } from "../shared/utils";
-import { Component, Data } from "./component";
+import { ComponentInternalInstance } from "./component";
+import { ComponentPublicInstance, Data } from "./componentPublicInstance";
 import { currentRenderingInstance } from "./componentRenderContext";
 
-export type VNodeTypes = VNode | typeof Text | Component;
+export type VNodeTypes =
+  | string // html element name
+  | typeof Text // html text node
+  | ComponentPublicInstance; // Vue Component
+
 export const Text = Symbol();
 
 export interface VNode<HostNode = any> {
@@ -12,7 +17,8 @@ export interface VNode<HostNode = any> {
   props: VNodeProps | null;
   el: HostNode | undefined;
   children: VNodeNormalizedChildren;
-  ctx: Component | null;
+  component: ComponentInternalInstance | null;
+  ctx: ComponentPublicInstance | null;
   shapeFlag: number;
 }
 
@@ -55,6 +61,7 @@ function createBaseVNode(
     el: null,
     ctx: currentRenderingInstance,
     shapeFlag: ShapeFlags.ELEMENT,
+    component: null,
   } as VNode;
 
   if (isVNode(type)) {
