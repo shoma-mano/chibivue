@@ -16,14 +16,7 @@ export class ComponentPublicInstance {
 
   // private properties
   _computedWatchers!: { [key: string]: Watcher };
-  _vnode?: VNode | null;
 
   // private methods
   // lifecycle
-  _init!: Function;
-  _update!: (vNode: VNode) => void;
-  // rendering
-  _render!: () => VNode;
 }
-
-export type Data = Record<string, unknown>;

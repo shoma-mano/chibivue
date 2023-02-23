@@ -1,4 +1,5 @@
 import { ComponentOptions } from "./componentOptions";
+import { ComponentPublicInstance } from "./componentPublicInstance";
 import { VNode } from "./vnode";
 
 export type ConcreteComponent = ComponentOptions;
@@ -10,16 +11,26 @@ export interface ComponentInternalInstance {
    * Vnode representing this component in its parent's vdom tree
    */
   vnode: VNode;
-
+  proxy: ComponentPublicInstance | null;
   // TODO:
   // effect: ReactiveEffect
   // render: InternalRenderFunction | null
   // directives: Record<string, Directive> | null
-  // proxy: ComponentPublicInstance | null
   // ctx: Data
 
+  render: () => VNode;
+  update: (vNode: VNode) => void;
+
+  /**
+   * This is the target for the public instance proxy. It also holds properties
+   * injected by user options (computed, methods etc.) and user-attached
+   * custom properties (via `this.x = ...`)
+   * @internal
+   */
+  ctx: Data;
+
   // state
-  // data: Data
+  data: Data;
   // props: Data
   // attrs: Data
   // emit: EmitFn
@@ -40,11 +51,21 @@ export interface ComponentInternalInstance {
   // [LifecycleHooks.SERVER_PREFETCH]: LifecycleHook<() => Promise<unknown>>
 }
 
+export type Data = Record<string, unknown>;
+
 export function createComponentInstance(
   vnode: VNode
 ): ComponentInternalInstance {
   const type = vnode.type as ConcreteComponent;
-  const instance: ComponentInternalInstance = { type, vnode };
+  const instance: ComponentInternalInstance = {
+    type,
+    vnode,
+    proxy: null,
+    update: null!,
+    render: null!,
+    ctx: {},
+    data: {},
+  };
 
   return instance;
 }

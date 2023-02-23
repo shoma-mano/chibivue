@@ -4,6 +4,7 @@ import {
   ComponentInternalInstance,
   createComponentInstance,
 } from "./component";
+import { applyOptions } from "./componentOptions";
 import { Text, VNode, VNodeArrayChildren, normalizeVNode } from "./vnode";
 
 export interface RendererOptions<
@@ -163,6 +164,7 @@ export function createRenderer<HostElement = RendererElement>(
   ) => {
     // prettier-ignore
     const instance: ComponentInternalInstance = (initialVNode.component =createComponentInstance(initialVNode));
+    applyOptions(instance);
 
     // TODO:
     // setupRenderEffect(instance, initialVNode, container, anchor);

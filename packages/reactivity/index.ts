@@ -1,7 +1,7 @@
 import { isArray, isPlainObject } from "../shared/utils";
 import { Dep } from "./dep";
 
-export function observe(value: unknown): Observer | void {
+export function reactive(value: unknown): Observer | void {
   if (isObserved(value)) return value.__ob__;
 
   if ((isArray(value) || isPlainObject(value)) && Object.isExtensible(value)) {
@@ -33,7 +33,7 @@ class Observer {
   }
 
   observeArray(array: Array<unknown>) {
-    array.forEach((item) => observe(item));
+    array.forEach((item) => reactive(item));
   }
 }
 
@@ -49,7 +49,7 @@ function defineReactive(obj: object, key: string): Dep | undefined {
   if (!getter || setter) {
     val = (obj as any)[key];
   }
-  let childOb = observe(val);
+  let childOb = reactive(val);
 
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -73,7 +73,7 @@ function defineReactive(obj: object, key: string): Dep | undefined {
       } else {
         val = newVal;
       }
-      childOb = observe(newVal);
+      childOb = reactive(newVal);
 
       dep.notify();
     },
