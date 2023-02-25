@@ -34,6 +34,9 @@ export function isPrimitive(value: unknown): boolean {
   );
 }
 
+export const isString = (val: unknown): val is string =>
+  typeof val === "string";
+
 export function isPlainObject(obj: any): boolean {
   return Object.prototype.toString.call(obj) === "[object Object]";
 }

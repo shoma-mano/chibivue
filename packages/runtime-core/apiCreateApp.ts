@@ -3,7 +3,7 @@ import { RootRenderFunction } from "./renderer";
 import { createVNode } from "./vnode";
 
 export interface App<HostElement = any> {
-  mount(rootContainer: HostElement): void;
+  mount(rootContainer: HostElement | string): void;
 }
 
 export type CreateAppFunction<HostElement> = (
