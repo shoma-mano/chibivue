@@ -27,12 +27,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
   }
 
   if (computedOptions) {
-    // TODO:
-    // const watchers = (ctx._computedWatchers = Object.create(null));
-    // Object.entries(computedOptions).forEach(([key, getter]) => {
-    //   watchers[key] = new Watcher(ctx, getter, () => {});
-    //   if (!(key in ctx)) defineComputed(ctx, key, getter);
-    // });
+    // TODO
   }
 
   if (methods) {
