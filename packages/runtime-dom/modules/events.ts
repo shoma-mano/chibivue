@@ -32,7 +32,7 @@ export function patchEvent(
     // patch
     existingInvoker.value = nextValue;
   } else {
-    const [name] = parseName(rawName);
+    const name = parseName(rawName);
     if (nextValue) {
       // add
       const invoker = (invokers[rawName] = createInvoker(nextValue));
