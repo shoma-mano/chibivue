@@ -6,6 +6,7 @@ import {
   createComponentInstance,
   setupComponent,
 } from "./component";
+import { renderComponentRoot } from "./componentRenderUtils";
 import {
   Text,
   normalizeVNode,
@@ -154,6 +155,7 @@ export function createRenderer<HostElement = RendererElement>(
     const { type, props, shapeFlag } = vnode;
 
     el = vnode.el = hostCreateElement(type as string);
+    // TODO: text node
     if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
       hostSetElementText(el, vnode.children as string);
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
@@ -194,10 +196,9 @@ export function createRenderer<HostElement = RendererElement>(
     anchor
   ) => {
     const componentUpdateFn = () => {
-      // TODO: patch only diff
-      patch((container as any)._vnode || null, initialVNode, container, null);
+      const subTree = (instance.subTree = renderComponentRoot(instance));
+      patch(null, subTree, container, anchor);
     };
-
     const effect = (instance.effect = new ReactiveEffect(
       componentUpdateFn,
       instance.scope

@@ -1,8 +1,11 @@
 import { ReactiveEffect } from "../reactivity/effect";
 import { EffectScope } from "../reactivity/effectScope";
 import { ComponentOptions, applyOptions } from "./componentOptions";
-import { ComponentPublicInstance } from "./componentPublicInstance";
-import { VNode } from "./vnode";
+import {
+  ComponentPublicInstance,
+  PublicInstanceProxyHandlers,
+} from "./componentPublicInstance";
+import { VNode, VNodeChild } from "./vnode";
 
 export type ConcreteComponent = ComponentOptions;
 
@@ -17,10 +20,15 @@ export interface ComponentInternalInstance {
   effect: ReactiveEffect;
   scope: EffectScope;
 
+  /**
+   * Root vnode of this component's own vdom tree
+   */
+  subTree: VNode;
+
   // TODO:
   // directives: Record<string, Directive> | null
 
-  render: () => VNode;
+  render: InternalRenderFunction | null;
   update: (vNode: VNode) => void;
 
   /**
@@ -57,6 +65,24 @@ export interface ComponentInternalInstance {
 
 export type Data = Record<string, unknown>;
 
+export type InternalRenderFunction = {
+  (
+    ctx: ComponentPublicInstance,
+
+    // TODO:
+    // for compiler-optimized bindings
+    // $props: ComponentInternalInstance["props"],
+    // $setup: ComponentInternalInstance["setupState"],
+    $data: ComponentInternalInstance["data"],
+    $options: ComponentInternalInstance["ctx"]
+  ): VNodeChild;
+  _rc?: boolean; // isRuntimeCompiled
+
+  // __COMPAT__ only
+  _compatChecked?: boolean; // v3 and already checked for v2 compat
+  _compatWrapped?: boolean; // is wrapped for v2 compat
+};
+
 export function createComponentInstance(
   vnode: VNode
 ): ComponentInternalInstance {
@@ -65,13 +91,16 @@ export function createComponentInstance(
     type,
     vnode,
     proxy: null,
-    update: null!,
-    render: null!,
     effect: null!,
     scope: new EffectScope(),
+    subTree: null!,
+    update: null!,
+    render: null!,
     ctx: {},
     data: {},
   };
+
+  instance.ctx = { _: instance };
 
   return instance;
 }
@@ -89,6 +118,9 @@ export const unsetCurrentInstance = () => {
 };
 
 export const setupComponent = (instance: ComponentInternalInstance) => {
+  // TODO: type
+  instance.proxy = new Proxy(instance.ctx, PublicInstanceProxyHandlers);
+
   setCurrentInstance(instance);
   applyOptions(instance);
   unsetCurrentInstance();
