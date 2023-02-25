@@ -4,6 +4,7 @@ import { createAppAPI } from "./apiCreateApp";
 import {
   ComponentInternalInstance,
   createComponentInstance,
+  setupComponent,
 } from "./component";
 import { applyOptions } from "./componentOptions";
 import { Text, VNode, VNodeArrayChildren, normalizeVNode } from "./vnode";
@@ -172,7 +173,7 @@ export function createRenderer<HostElement = RendererElement>(
   ) => {
     // prettier-ignore
     const instance: ComponentInternalInstance = (initialVNode.component = createComponentInstance(initialVNode));
-    applyOptions(instance);
+    setupComponent(instance);
     setupRenderEffect(instance, initialVNode, container, anchor);
   };
 
@@ -187,7 +188,10 @@ export function createRenderer<HostElement = RendererElement>(
       patch((container as any)._vnode || null, initialVNode, container, null);
     };
 
-    const effect = (instance.effect = new ReactiveEffect(componentUpdateFn));
+    const effect = (instance.effect = new ReactiveEffect(
+      componentUpdateFn,
+      instance.scope
+    ));
     const update = (instance.update = () => effect.run());
     update();
   };

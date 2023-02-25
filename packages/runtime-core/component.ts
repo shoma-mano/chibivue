@@ -1,5 +1,6 @@
 import { ReactiveEffect } from "../reactivity/effect";
-import { ComponentOptions } from "./componentOptions";
+import { EffectScope } from "../reactivity/effectScope";
+import { ComponentOptions, applyOptions } from "./componentOptions";
 import { ComponentPublicInstance } from "./componentPublicInstance";
 import { VNode } from "./vnode";
 
@@ -14,6 +15,7 @@ export interface ComponentInternalInstance {
   vnode: VNode;
   proxy: ComponentPublicInstance | null;
   effect: ReactiveEffect;
+  scope: EffectScope;
 
   // TODO:
   // render: InternalRenderFunction | null
@@ -66,9 +68,28 @@ export function createComponentInstance(
     update: null!,
     render: null!,
     effect: null!,
+    scope: new EffectScope(),
     ctx: {},
     data: {},
   };
 
   return instance;
 }
+
+export let currentInstance: ComponentInternalInstance | null = null;
+
+export const setCurrentInstance = (instance: ComponentInternalInstance) => {
+  currentInstance = instance;
+  instance.scope.on();
+};
+
+export const unsetCurrentInstance = () => {
+  currentInstance && currentInstance.scope.off();
+  currentInstance = null;
+};
+
+export const setupComponent = (instance: ComponentInternalInstance) => {
+  setCurrentInstance(instance);
+  applyOptions(instance);
+  unsetCurrentInstance();
+};

@@ -1,5 +1,6 @@
 import { isArray } from "../shared/utils";
 import { Dep, createDep } from "./dep";
+import { EffectScope, recordEffectScope } from "./effectScope";
 
 type KeyToDepMap = Map<any, Dep>;
 const targetMap = new WeakMap<any, KeyToDepMap>();
@@ -10,7 +11,9 @@ export const ITERATE_KEY = Symbol("");
 
 export class ReactiveEffect<T = any> {
   public deps: Dep[] = [];
-  constructor(public fn: () => T) {}
+  constructor(public fn: () => T, scope?: EffectScope) {
+    recordEffectScope(this, scope);
+  }
 
   run() {
     activeEffect = this;
