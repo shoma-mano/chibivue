@@ -1,5 +1,5 @@
 import { ShapeFlags } from "../shared/shapeFlags";
-import { isArray } from "../shared";
+import { isArray, isObject, isString } from "../shared";
 import { currentRenderingInstance } from "./componentRenderContext";
 import { type ComponentInternalInstance } from "./component";
 import { type ComponentPublicInstance } from "./componentPublicInstance";
@@ -46,13 +46,19 @@ export const createVNode = (
   props: VNodeProps | null = null,
   children: unknown = null
 ) => {
-  return createBaseVNode(type, props, children);
+  const shapeFlag = isString(type)
+    ? ShapeFlags.ELEMENT
+    : isObject(type)
+    ? ShapeFlags.COMPONENT
+    : 0;
+  return createBaseVNode(type, props, children, shapeFlag);
 };
 
 function createBaseVNode(
   type: VNodeTypes,
   props: VNodeProps | null,
-  children: unknown
+  children: unknown,
+  shapeFlag: ShapeFlags | 0 = ShapeFlags.ELEMENT
 ): VNode {
   const vnode = {
     type,
@@ -60,7 +66,7 @@ function createBaseVNode(
     children,
     el: null,
     ctx: currentRenderingInstance,
-    shapeFlag: ShapeFlags.ELEMENT,
+    shapeFlag,
     component: null,
   } as VNode;
 
