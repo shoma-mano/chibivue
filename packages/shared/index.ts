@@ -1,6 +1,12 @@
 const onRE = /^on[^a-z]/;
 export const isOn = (key: string) => onRE.test(key);
 
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+export const hasOwn = (
+  val: object,
+  key: string | symbol
+): key is keyof typeof val => hasOwnProperty.call(val, key);
+
 export const isArray = Array.isArray;
 
 // These helpers produce better VM code in JS engines due to their
