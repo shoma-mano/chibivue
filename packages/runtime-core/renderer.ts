@@ -171,7 +171,7 @@ export function createRenderer<HostElement = RendererElement>(
     anchor
   ) => {
     // prettier-ignore
-    const instance: ComponentInternalInstance = (initialVNode.component =createComponentInstance(initialVNode));
+    const instance: ComponentInternalInstance = (initialVNode.component = createComponentInstance(initialVNode));
     applyOptions(instance);
     setupRenderEffect(instance, initialVNode, container, anchor);
   };

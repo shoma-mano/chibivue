@@ -1,7 +1,7 @@
 import { ShapeFlags } from "../shared/shapeFlags";
 import { isArray } from "../shared/utils";
 import { ComponentInternalInstance } from "./component";
-import { ComponentPublicInstance, Data } from "./componentPublicInstance";
+import { ComponentPublicInstance } from "./componentPublicInstance";
 import { currentRenderingInstance } from "./componentRenderContext";
 
 export type VNodeTypes =
