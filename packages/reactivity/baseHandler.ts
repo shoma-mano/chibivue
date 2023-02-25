@@ -1,9 +1,7 @@
 import { track, trigger } from "./effect";
 import { Target } from "./reactive";
 
-const get = /*#__PURE__*/ createGetter();
-const set = /*#__PURE__*/ createSetter();
-
+const get = createGetter();
 function createGetter() {
   return function get(target: Target, key: string | symbol, receiver: object) {
     track(target, key);
@@ -11,6 +9,7 @@ function createGetter() {
   };
 }
 
+const set = createSetter();
 function createSetter() {
   return function set(
     target: object,
@@ -24,7 +23,4 @@ function createSetter() {
   };
 }
 
-export const mutableHandlers: ProxyHandler<object> = {
-  get,
-  set,
-};
+export const mutableHandlers: ProxyHandler<object> = { get, set };
