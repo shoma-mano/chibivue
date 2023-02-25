@@ -7,8 +7,6 @@ const targetMap = new WeakMap<any, KeyToDepMap>();
 
 export let activeEffect: ReactiveEffect | undefined;
 
-export const ITERATE_KEY = Symbol("");
-
 export class ReactiveEffect<T = any> {
   public deps: Dep[] = [];
   constructor(public fn: () => T, scope?: EffectScope) {
@@ -48,7 +46,6 @@ export function trigger(target: object, key?: unknown) {
   if (key !== void 0) {
     deps.push(depsMap.get(key));
   }
-  deps.push(depsMap.get(ITERATE_KEY));
 
   if (deps.length === 1 && deps[0]) {
     triggerEffects(deps[0]);
@@ -57,7 +54,6 @@ export function trigger(target: object, key?: unknown) {
 
 export function triggerEffects(dep: Dep | ReactiveEffect[]) {
   const effects = isArray(dep) ? dep : [...dep];
-
   // TODO: computed
   // for (const effect of effects) {
   //   if (effect.computed) {
@@ -73,7 +69,5 @@ export function triggerEffects(dep: Dep | ReactiveEffect[]) {
 }
 
 function triggerEffect(effect: ReactiveEffect) {
-  if (effect !== activeEffect) {
-    effect.run();
-  }
+  effect.run();
 }
