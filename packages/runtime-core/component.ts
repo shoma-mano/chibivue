@@ -18,9 +18,7 @@ export interface ComponentInternalInstance {
   scope: EffectScope;
 
   // TODO:
-  // render: InternalRenderFunction | null
   // directives: Record<string, Directive> | null
-  // ctx: Data
 
   render: () => VNode;
   update: (vNode: VNode) => void;
@@ -35,6 +33,8 @@ export interface ComponentInternalInstance {
 
   // state
   data: Data;
+
+  // TODO:
   // props: Data
   // attrs: Data
   // emit: EmitFn
