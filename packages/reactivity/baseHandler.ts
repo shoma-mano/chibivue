@@ -1,5 +1,5 @@
 import { track, trigger } from "./effect";
-import { Target } from "./reactive";
+import { type Target } from "./reactive";
 
 const get = createGetter();
 function createGetter() {

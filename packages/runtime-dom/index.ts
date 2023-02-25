@@ -1,8 +1,8 @@
-import { createRenderer, CreateAppFunction } from "../runtime-core";
-import { RootRenderFunction } from "../runtime-core/renderer";
+import { createRenderer, type CreateAppFunction } from "../runtime-core";
 import { isString } from "../shared";
 import { nodeOps } from "./nodeOps";
 import { patchProp } from "./patchProp";
+import { type RootRenderFunction } from "../runtime-core/renderer";
 
 const renderer = createRenderer({ ...nodeOps, patchProp });
 

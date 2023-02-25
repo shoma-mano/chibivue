@@ -1,6 +1,6 @@
-import { ComponentPublicInstance } from "./componentPublicInstance";
-import { RootRenderFunction } from "./renderer";
 import { createVNode } from "./vnode";
+import { type ComponentPublicInstance } from "./componentPublicInstance";
+import { type RootRenderFunction } from "./renderer";
 
 export interface App<HostElement = any> {
   mount(rootContainer: HostElement | string): void;

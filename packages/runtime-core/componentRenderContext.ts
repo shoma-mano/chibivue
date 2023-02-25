@@ -1,3 +1,3 @@
-import { ComponentPublicInstance } from "./componentPublicInstance";
+import { type ComponentPublicInstance } from "./componentPublicInstance";
 
 export let currentRenderingInstance: ComponentPublicInstance | null = null;

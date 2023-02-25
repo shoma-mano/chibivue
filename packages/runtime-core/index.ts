@@ -1,14 +1,15 @@
-export { CreateAppFunction } from "./apiCreateApp";
-export { RendererOptions, createRenderer } from "./renderer";
+export { type CreateAppFunction } from "./apiCreateApp";
+export { type RendererOptions, createRenderer } from "./renderer";
 
-export { ComponentInternalInstance } from "./component";
-export { ComponentOptions } from "./componentOptions";
-export { ComponentPublicInstance } from "./componentPublicInstance";
+export { type ComponentInternalInstance } from "./component";
+export { type ComponentOptions } from "./componentOptions";
+export { type ComponentPublicInstance } from "./componentPublicInstance";
 
 export {
-  VNode,
-  VNodeProps as VNodeData,
+  type VNode,
+  type VNodeProps as VNodeData,
   createTextVNode,
   createVNode,
 } from "./vnode";
 export { h } from "./h";
+

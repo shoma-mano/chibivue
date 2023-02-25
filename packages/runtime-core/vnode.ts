@@ -1,8 +1,8 @@
 import { ShapeFlags } from "../shared/shapeFlags";
 import { isArray } from "../shared";
-import { ComponentInternalInstance } from "./component";
-import { ComponentPublicInstance } from "./componentPublicInstance";
 import { currentRenderingInstance } from "./componentRenderContext";
+import { type ComponentInternalInstance } from "./component";
+import { type ComponentPublicInstance } from "./componentPublicInstance";
 
 export type VNodeTypes =
   | string // html element name

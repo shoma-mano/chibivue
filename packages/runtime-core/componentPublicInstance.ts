@@ -1,5 +1,5 @@
-import { ComponentInternalInstance } from "./component";
-import { ComponentOptions } from "./componentOptions";
+import { type ComponentInternalInstance } from "./component";
+import { type ComponentOptions } from "./componentOptions";
 
 export class ComponentPublicInstance {
   $!: ComponentInternalInstance;

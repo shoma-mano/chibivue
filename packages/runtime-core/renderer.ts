@@ -2,11 +2,16 @@ import { ReactiveEffect } from "../reactivity/effect";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createAppAPI } from "./apiCreateApp";
 import {
-  ComponentInternalInstance,
+  type ComponentInternalInstance,
   createComponentInstance,
   setupComponent,
 } from "./component";
-import { Text, VNode, VNodeArrayChildren, normalizeVNode } from "./vnode";
+import {
+  Text,
+  normalizeVNode,
+  type VNode,
+  type VNodeArrayChildren,
+} from "./vnode";
 
 export interface RendererOptions<
   HostNode = RendererNode,

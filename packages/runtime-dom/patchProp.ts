@@ -1,6 +1,6 @@
-import { RendererOptions } from "../runtime-core";
 import { isOn } from "../shared";
 import { patchEvent } from "./modules/events";
+import { type RendererOptions } from "../runtime-core";
 
 type DOMRendererOptions = RendererOptions<Node, Element>;
 
