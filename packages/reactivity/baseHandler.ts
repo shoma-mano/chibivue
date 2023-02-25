@@ -1,3 +1,4 @@
+import { trigger } from "./effect";
 import { Target } from "./reactive";
 
 const get = /*#__PURE__*/ createGetter();
@@ -16,11 +17,8 @@ function createSetter() {
     value: unknown,
     receiver: object
   ) {
-    let oldValue = (target as any)[key];
-    oldValue = toRaw(oldValue);
-    value = toRaw(value);
-
     const result = Reflect.set(target, key, value, receiver);
+    trigger(target, key);
     return result;
   };
 }
