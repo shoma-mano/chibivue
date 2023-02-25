@@ -1,3 +1,4 @@
+import { ReactiveEffect } from "../reactivity/effect";
 import { ShapeFlags } from "../shared/shapeFlags";
 import { createAppAPI } from "./apiCreateApp";
 import {
@@ -62,6 +63,13 @@ type MountChildrenFn = (
 ) => void;
 
 type MountComponentFn = (
+  initialVNode: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
+
+export type SetupRenderEffectFn = (
+  instance: ComponentInternalInstance,
   initialVNode: VNode,
   container: RendererElement,
   anchor: RendererNode | null
@@ -165,9 +173,23 @@ export function createRenderer<HostElement = RendererElement>(
     // prettier-ignore
     const instance: ComponentInternalInstance = (initialVNode.component =createComponentInstance(initialVNode));
     applyOptions(instance);
+    setupRenderEffect(instance, initialVNode, container, anchor);
+  };
 
-    // TODO:
-    // setupRenderEffect(instance, initialVNode, container, anchor);
+  const setupRenderEffect: SetupRenderEffectFn = (
+    instance,
+    initialVNode,
+    container,
+    anchor
+  ) => {
+    const componentUpdateFn = () => {
+      // TODO: patch only diff
+      patch((container as any)._vnode || null, initialVNode, container, null);
+    };
+
+    const effect = (instance.effect = new ReactiveEffect(componentUpdateFn));
+    const update = (instance.update = () => effect.run());
+    update();
   };
 
   const render: RootRenderFunction = (vnode, container) => {

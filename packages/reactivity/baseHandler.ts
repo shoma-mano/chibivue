@@ -1,4 +1,4 @@
-import { trigger } from "./effect";
+import { track, trigger } from "./effect";
 import { Target } from "./reactive";
 
 const get = /*#__PURE__*/ createGetter();
@@ -6,7 +6,8 @@ const set = /*#__PURE__*/ createSetter();
 
 function createGetter() {
   return function get(target: Target, key: string | symbol, receiver: object) {
-    return target;
+    track(target, key);
+    return Reflect.get(target, key, receiver);
   };
 }
 

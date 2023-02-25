@@ -1,3 +1,4 @@
+import { ReactiveEffect } from "../reactivity/effect";
 import { ComponentOptions } from "./componentOptions";
 import { ComponentPublicInstance } from "./componentPublicInstance";
 import { VNode } from "./vnode";
@@ -12,8 +13,9 @@ export interface ComponentInternalInstance {
    */
   vnode: VNode;
   proxy: ComponentPublicInstance | null;
+  effect: ReactiveEffect;
+
   // TODO:
-  // effect: ReactiveEffect
   // render: InternalRenderFunction | null
   // directives: Record<string, Directive> | null
   // ctx: Data
@@ -63,6 +65,7 @@ export function createComponentInstance(
     proxy: null,
     update: null!,
     render: null!,
+    effect: null!,
     ctx: {},
     data: {},
   };
