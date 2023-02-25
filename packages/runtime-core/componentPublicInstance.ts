@@ -18,11 +18,24 @@ export interface ComponentRenderContext {
 
 export const PublicInstanceProxyHandlers: ProxyHandler<any> = {
   get({ _: instance }: ComponentRenderContext, key: string) {
-    const { ctx, data, type } = instance;
+    const { ctx, data } = instance;
     if (hasOwn(data, key)) {
       return data[key];
     } else if (hasOwn(ctx, key)) {
       return ctx[key];
     }
+  },
+  set(
+    { _: instance }: ComponentRenderContext,
+    key: string,
+    value: any
+  ): boolean {
+    const { ctx, data } = instance;
+    if (hasOwn(data, key)) {
+      data[key] = value;
+    } else if (hasOwn(ctx, key)) {
+      ctx[key] = value;
+    }
+    return true;
   },
 };
