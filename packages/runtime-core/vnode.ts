@@ -72,6 +72,10 @@ function createBaseVNode(
 
   if (isVNode(type)) {
     normalizeChildren(vnode, children);
+  } else if (children) {
+    vnode.shapeFlag |= isString(children)
+      ? ShapeFlags.TEXT_CHILDREN
+      : ShapeFlags.ARRAY_CHILDREN;
   }
 
   return vnode;
