@@ -8,13 +8,16 @@
     "paths": {
       "~/*": [
         "./*"
+      ],
+      "chibi-vue": [
+        "./packages"
       ]
     },
     "moduleResolution": "node"
   },
   "include": [
     "packages/**/*.ts",
-    "example/src/main.ts"
+    "example/**/**.ts"
   ],
   "exclude": [
     "node_modules",

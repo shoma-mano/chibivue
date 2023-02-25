@@ -6,7 +6,6 @@ import {
   createComponentInstance,
   setupComponent,
 } from "./component";
-import { applyOptions } from "./componentOptions";
 import { Text, VNode, VNodeArrayChildren, normalizeVNode } from "./vnode";
 
 export interface RendererOptions<
