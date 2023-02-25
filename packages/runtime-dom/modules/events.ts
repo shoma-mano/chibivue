@@ -1,5 +1,5 @@
 import { VNode } from "../../runtime-core";
-import { isUndef } from "../../shared/utils";
+import { isUndef } from "../../shared";
 
 let target: any;
 

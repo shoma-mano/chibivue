@@ -1,4 +1,4 @@
-import { isArray } from "../shared/utils";
+import { isArray } from "../shared";
 import { Dep, createDep } from "./dep";
 import { EffectScope, recordEffectScope } from "./effectScope";
 
