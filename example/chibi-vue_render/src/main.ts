@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createApp } from "chibi-vue";
+import { createApp, h } from "chibi-vue";
 
 const app = createApp({
   data() {
@@ -19,7 +19,7 @@ const app = createApp({
       return this.count * 2;
     },
   },
-  render(h) {
+  render() {
     return h(
       "div",
       {

@@ -8,3 +8,4 @@ export {
   createVNode,
 } from "./vnode";
 export { CreateAppFunction } from "./apiCreateApp";
+export { h } from "./h";
