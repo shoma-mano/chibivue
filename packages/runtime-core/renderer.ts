@@ -12,6 +12,7 @@ export interface RendererOptions<
   HostNode = RendererNode,
   HostElement = RendererElement
 > {
+  patchProp(el: HostElement, key: string, prevValue: any, nextValue: any): void;
   insert(
     parentNode: HostNode,
     newNode: HostNode,
@@ -81,6 +82,7 @@ export function createRenderer<HostElement = RendererElement>(
   const {
     insert: hostInsert,
     remove: hostRemove,
+    patchProp: hostPatchProp,
     createElement: hostCreateElement,
     createText: hostCreateText,
     createComment: hostCreateComment,
@@ -153,7 +155,11 @@ export function createRenderer<HostElement = RendererElement>(
       mountChildren(vnode.children as VNodeArrayChildren, el, null);
     }
 
-    // TODO: props
+    if (props) {
+      for (const key in props) {
+        hostPatchProp(el, key, null, props[key]);
+      }
+    }
 
     hostInsert(el, container, anchor!);
   };

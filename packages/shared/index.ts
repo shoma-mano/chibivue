@@ -1,3 +1,6 @@
+const onRE = /^on[^a-z]/;
+export const isOn = (key: string) => onRE.test(key);
+
 export const isArray = Array.isArray;
 
 // These helpers produce better VM code in JS engines due to their
