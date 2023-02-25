@@ -23,9 +23,7 @@ const app = createApp({
     return h(
       "div",
       {
-        onClick() {
-          this.changeMessage();
-        },
+        onClick: this.changeMessage,
       },
       this.message
     );
