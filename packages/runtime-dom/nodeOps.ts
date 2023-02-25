@@ -21,8 +21,8 @@ export const nodeOps: Omit<RendererOptions, "patchProp"> = {
     el.textContent = text;
   },
 
-  insert: (parentNode: Node, newNode: Node, referenceNode: Node) => {
-    parentNode.insertBefore(newNode, referenceNode);
+  insert: (child: Node, parentNode: Node, referenceNode: Node) => {
+    parentNode.insertBefore(child, referenceNode);
   },
 
   remove: (node: Node, child: Node) => {
