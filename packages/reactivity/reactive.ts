@@ -1,3 +1,4 @@
+import { isObject } from "../shared";
 import { mutableHandlers } from "./baseHandler";
 
 export interface Target {}
@@ -16,3 +17,6 @@ export function reactive(target: Target) {
 
   return proxy;
 }
+
+export const toReactive = <T extends unknown>(value: T): T =>
+  isObject(value) ? reactive(value) : value;
