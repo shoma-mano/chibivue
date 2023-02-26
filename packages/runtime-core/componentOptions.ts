@@ -1,4 +1,4 @@
-import { reactive } from "../reactivity";
+import { computed, reactive } from "../reactivity";
 import { type ComponentInternalInstance } from "./component";
 import { type VNode } from "./vnode";
 
@@ -27,7 +27,13 @@ export function applyOptions(instance: ComponentInternalInstance) {
   }
 
   if (computedOptions) {
-    // TODO
+    for (const key in computedOptions) {
+      const getter = computedOptions[key].bind(publicThis);
+      const c = computed(getter);
+      Object.defineProperty(ctx, key, {
+        get: () => c.value,
+      });
+    }
   }
 
   if (methods) {

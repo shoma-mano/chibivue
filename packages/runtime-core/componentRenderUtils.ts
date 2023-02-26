@@ -6,6 +6,5 @@ export function renderComponentRoot(
 ): VNode {
   const { proxy, render, data, ctx } = instance;
   const result = normalizeVNode(render!.call(proxy, proxy!, data, ctx));
-
   return result;
 }
