@@ -15,11 +15,18 @@ import {
   type VNodeArrayChildren,
 } from "./vnode";
 
+export type RootRenderFunction<HostElement = RendererElement> = (
+  vnode: VNode | null,
+  container: HostElement,
+  isSVG?: boolean
+) => void;
+
 export interface RendererOptions<
   HostNode = RendererNode,
   HostElement = RendererElement
 > {
   patchProp(el: HostElement, key: string, prevValue: any, nextValue: any): void;
+
   insert(
     parentNode: HostNode,
     newNode: HostNode,
@@ -38,18 +45,19 @@ export interface RendererOptions<
   nextSibling(node: HostNode): HostNode | null;
 }
 
+// Renderer Node can technically be any object in the context of core renderer
+// logic - they are never directly operated on and always passed to the node op
+// functions provided via options, so the internal constraint is really just
+// a generic object.
 export interface RendererNode {
   [key: string]: any;
 }
 
 export interface RendererElement extends RendererNode {}
 
-export type RootRenderFunction<HostElement = RendererElement> = (
-  vnode: VNode | null,
-  container: HostElement,
-  isSVG?: boolean
-) => void;
-
+// These functions are created inside a closure and therefore their types cannot
+// be directly exported. In order to avoid maintaining function signatures in
+// two places, we declare them once here and use them inside the closure.
 type PatchFn = (
   n1: VNode | null, // null means this is a mount
   n2: VNode,
@@ -90,16 +98,14 @@ type RemoveFn = (vnode: VNode) => void;
 
 type UnmountChildrenFn = (children: VNode[]) => void;
 
-export type SetupRenderEffectFn = (
+type SetupRenderEffectFn = (
   instance: ComponentInternalInstance,
-  initialVNode: VNode,
   container: RendererElement,
   anchor: RendererNode | null
 ) => void;
 
-export function createRenderer<HostElement = RendererElement>(
-  options: RendererOptions
-) {
+// implementation
+export function createRenderer(options: RendererOptions) {
   const {
     insert: hostInsert,
     remove: hostRemove,
@@ -228,7 +234,7 @@ export function createRenderer<HostElement = RendererElement>(
     // prettier-ignore
     const instance: ComponentInternalInstance = (initialVNode.component = createComponentInstance(initialVNode));
     setupComponent(instance);
-    setupRenderEffect(instance, initialVNode, container, anchor);
+    setupRenderEffect(instance, container, anchor);
   };
 
   const updateComponent = (n1: VNode, n2: VNode) => {
@@ -239,7 +245,6 @@ export function createRenderer<HostElement = RendererElement>(
 
   const setupRenderEffect: SetupRenderEffectFn = (
     instance,
-    initialVNode,
     container,
     anchor
   ) => {
@@ -264,9 +269,7 @@ export function createRenderer<HostElement = RendererElement>(
         patch(
           prevTree,
           nextTree,
-          // parent may have changed if it's in a teleport
           hostParentNode(prevTree.el!)!,
-          // anchor may have changed if it's in a fragment
           getNextHostNode(prevTree)
         );
         next.el = nextTree.el;
