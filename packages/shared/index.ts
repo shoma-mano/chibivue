@@ -47,6 +47,6 @@ export function isPlainObject(obj: any): boolean {
   return Object.prototype.toString.call(obj) === "[object Object]";
 }
 
-export function isObject(obj: any): boolean {
+export function isObject(obj: unknown): obj is object {
   return obj !== null && typeof obj === "object";
 }
