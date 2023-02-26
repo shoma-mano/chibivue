@@ -106,7 +106,7 @@ export function createRenderer<HostElement = RendererElement>(
     patchProp: hostPatchProp,
     createElement: hostCreateElement,
     createText: hostCreateText,
-    createComment: hostCreateComment,
+    setText: hostSetText,
     setElementText: hostSetElementText,
     parentNode: hostParentNode,
     nextSibling: hostNextSibling,
@@ -131,7 +131,10 @@ export function createRenderer<HostElement = RendererElement>(
         anchor!
       );
     } else {
-      // TODO: patch text
+      const el = (n2.el = n1.el!);
+      if (n2.children !== n1.children) {
+        hostSetText(el, n2.children as string);
+      }
     }
   };
 
