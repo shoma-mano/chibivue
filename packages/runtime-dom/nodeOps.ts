@@ -25,8 +25,11 @@ export const nodeOps: Omit<RendererOptions, "patchProp"> = {
     parentNode.insertBefore(child, referenceNode);
   },
 
-  remove: (node: Node, child: Node) => {
-    node.removeChild(child);
+  remove: (child: Node) => {
+    const parent = child.parentNode;
+    if (parent) {
+      parent.removeChild(child);
+    }
   },
 
   parentNode: (node: Node) => {

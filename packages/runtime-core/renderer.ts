@@ -5,6 +5,7 @@ import {
   type ComponentInternalInstance,
   createComponentInstance,
   setupComponent,
+  Data,
 } from "./component";
 import { renderComponentRoot } from "./componentRenderUtils";
 import {
@@ -24,7 +25,7 @@ export interface RendererOptions<
     newNode: HostNode,
     referenceNode: HostNode
   ): void;
-  remove(node: HostNode, child: HostNode): void;
+  remove(child: HostNode): void;
 
   createElement(tagName: string): HostElement;
   createComment(text: string): HostNode;
@@ -69,11 +70,25 @@ type MountChildrenFn = (
   anchor: RendererNode | null
 ) => void;
 
+type PatchChildrenFn = (
+  n1: VNode | null,
+  n2: VNode,
+  container: RendererElement,
+  anchor: RendererNode | null
+) => void;
+
 type MountComponentFn = (
   initialVNode: VNode,
   container: RendererElement,
   anchor: RendererNode | null
 ) => void;
+
+type NextFn = (vnode: VNode) => RendererNode | null;
+
+type UnmountFn = (vnode: VNode) => void;
+type RemoveFn = (vnode: VNode) => void;
+
+type UnmountChildrenFn = (children: VNode[]) => void;
 
 export type SetupRenderEffectFn = (
   instance: ComponentInternalInstance,
@@ -129,8 +144,41 @@ export function createRenderer<HostElement = RendererElement>(
     if (n1 == null) {
       mountElement(n2, container, anchor);
     } else {
-      // TODO: patch element
+      patchElement(n1, n2);
     }
+  };
+
+  const mountElement = (
+    vnode: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null
+  ) => {
+    let el: RendererElement;
+    const { type, props, shapeFlag } = vnode;
+
+    el = vnode.el = hostCreateElement(type as string);
+
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      hostSetElementText(el, vnode.children as string);
+    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      mountChildren(vnode.children as VNodeArrayChildren, el, null);
+    }
+
+    if (props) {
+      for (const key in props) {
+        hostPatchProp(el, key, null, props[key]);
+      }
+    }
+
+    hostInsert(el, container, anchor!);
+  };
+
+  const patchElement = (n1: VNode, n2: VNode) => {
+    const el = (n2.el = n1.el!);
+    const oldProps = n1.props ?? {};
+    const newProps = n2.props ?? {};
+    patchChildren(n1, n2, el, null);
+    patchProps(el, oldProps, newProps);
   };
 
   const processComponent = (
@@ -146,29 +194,20 @@ export function createRenderer<HostElement = RendererElement>(
     }
   };
 
-  const mountElement = (
-    vnode: VNode,
-    container: RendererElement,
-    anchor: RendererNode | null
-  ) => {
-    let el: RendererElement;
-    const { type, props, shapeFlag } = vnode;
-
-    el = vnode.el = hostCreateElement(type as string);
-    // TODO: text node
-    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
-      hostSetElementText(el, vnode.children as string);
-    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-      mountChildren(vnode.children as VNodeArrayChildren, el, null);
-    }
-
-    if (props) {
-      for (const key in props) {
-        hostPatchProp(el, key, null, props[key]);
+  const patchProps = (el: RendererElement, oldProps: Data, newProps: Data) => {
+    for (const key in oldProps) {
+      if (!(key in newProps)) {
+        hostPatchProp(el, key, oldProps[key], null);
       }
     }
-
-    hostInsert(el, container, anchor!);
+    for (const key in newProps) {
+      const next = newProps[key];
+      const prev = oldProps[key];
+      // defer patching value
+      if (next !== prev) {
+        hostPatchProp(el, key, prev, next);
+      }
+    }
   };
 
   const mountChildren: MountChildrenFn = (children, container, anchor) => {
@@ -196,8 +235,33 @@ export function createRenderer<HostElement = RendererElement>(
     anchor
   ) => {
     const componentUpdateFn = () => {
-      const subTree = (instance.subTree = renderComponentRoot(instance));
-      patch(null, subTree, container, anchor);
+      if (!instance.isMounted) {
+        const subTree = (instance.subTree = renderComponentRoot(instance));
+        patch(null, subTree, container, anchor);
+        instance.isMounted = true;
+      } else {
+        let { next, vnode } = instance;
+
+        if (next) {
+          next.el = vnode.el;
+          updateComponentPreRender(instance, next);
+        } else {
+          next = vnode;
+        }
+
+        const nextTree = renderComponentRoot(instance);
+        const prevTree = instance.subTree;
+        instance.subTree = nextTree;
+        patch(
+          prevTree,
+          nextTree,
+          // parent may have changed if it's in a teleport
+          hostParentNode(prevTree.el!)!,
+          // anchor may have changed if it's in a fragment
+          getNextHostNode(prevTree)
+        );
+        next.el = nextTree.el;
+      }
     };
     const effect = (instance.effect = new ReactiveEffect(
       componentUpdateFn,
@@ -205,6 +269,98 @@ export function createRenderer<HostElement = RendererElement>(
     ));
     const update = (instance.update = () => effect.run());
     update();
+  };
+
+  const updateComponentPreRender = (
+    instance: ComponentInternalInstance,
+    nextVNode: VNode
+  ) => {
+    nextVNode.component = instance;
+    instance.vnode = nextVNode;
+    instance.next = null;
+  };
+
+  const patchChildren: PatchChildrenFn = (n1, n2, container, anchor) => {
+    const c1 = n1 && n1.children;
+    const prevShapeFlag = n1 ? n1.shapeFlag : 0;
+    const c2 = n2.children;
+    const { shapeFlag } = n2;
+
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        unmountChildren(c1 as VNode[]);
+      }
+      if (c2 !== c1) {
+        hostSetElementText(container, c2 as string);
+      }
+    } else {
+      if (prevShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // two arrays, cannot assume anything, do full diff
+          let _c1 = (c1 || []) as VNode[];
+          let _c2 = (c2 || []) as VNode[];
+          const oldLength = _c1.length;
+          const newLength = _c2.length;
+          const commonLength = Math.min(oldLength, newLength);
+          let i;
+          for (i = 0; i < commonLength; i++) {
+            const nextChild = (_c2[i] = normalizeVNode(c2[i]));
+            patch(_c1[i], nextChild, container, null);
+          }
+          if (oldLength > newLength) {
+            // remove old
+            unmountChildren(_c1);
+          } else {
+            // mount new
+            mountChildren(_c2, container, anchor);
+          }
+        } else {
+          // no new children, just unmount old
+          unmountChildren(c1 as VNode[]);
+        }
+      } else {
+        // prev children was text OR null
+        // new children is array OR null
+        if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+          hostSetElementText(container, "");
+        }
+        // mount new if array
+        if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          mountChildren(c2 as VNodeArrayChildren, container, anchor);
+        }
+      }
+    }
+  };
+
+  const unmount: UnmountFn = (vnode) => {
+    const { type, props, children, shapeFlag } = vnode;
+    if (shapeFlag & ShapeFlags.COMPONENT) {
+      unmountComponent(vnode.component!);
+    }
+    remove(vnode);
+  };
+
+  const remove: RemoveFn = (vnode) => {
+    const { el } = vnode;
+    hostRemove(el!);
+  };
+
+  const unmountComponent = (instance: ComponentInternalInstance) => {
+    const { subTree } = instance;
+    unmount(subTree);
+  };
+
+  const unmountChildren: UnmountChildrenFn = (children) => {
+    for (let i = 0; i < children.length; i++) {
+      unmount(children[i]);
+    }
+  };
+
+  const getNextHostNode: NextFn = (vnode) => {
+    if (vnode.shapeFlag & ShapeFlags.COMPONENT) {
+      return getNextHostNode(vnode.component!.subTree);
+    }
+    return hostNextSibling(vnode.el!);
   };
 
   const render: RootRenderFunction = (vnode, container) => {

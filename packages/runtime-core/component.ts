@@ -16,6 +16,8 @@ export interface ComponentInternalInstance {
    * Vnode representing this component in its parent's vdom tree
    */
   vnode: VNode;
+  next: VNode | null;
+
   proxy: ComponentPublicInstance | null;
   effect: ReactiveEffect;
   scope: EffectScope;
@@ -46,6 +48,7 @@ export interface ComponentInternalInstance {
   // props: Data
   // attrs: Data
   // emit: EmitFn
+  isMounted: boolean;
 
   // [LifecycleHooks.BEFORE_CREATE]: LifecycleHook
   // [LifecycleHooks.CREATED]: LifecycleHook
@@ -90,6 +93,7 @@ export function createComponentInstance(
   const instance: ComponentInternalInstance = {
     type,
     vnode,
+    next: null,
     proxy: null,
     effect: null!,
     scope: new EffectScope(),
@@ -98,6 +102,7 @@ export function createComponentInstance(
     render: null!,
     ctx: {},
     data: {},
+    isMounted: false,
   };
 
   instance.ctx = { _: instance };
