@@ -342,7 +342,7 @@ export function createRenderer<HostElement = RendererElement>(
   };
 
   const unmount: UnmountFn = (vnode) => {
-    const { type, props, children, shapeFlag } = vnode;
+    const { shapeFlag } = vnode;
     if (shapeFlag & ShapeFlags.COMPONENT) {
       unmountComponent(vnode.component!);
     }
@@ -374,7 +374,9 @@ export function createRenderer<HostElement = RendererElement>(
 
   const render: RootRenderFunction = (vnode, container) => {
     if (vnode === null) {
-      // TODO: unmount
+      if (container._vnode) {
+        unmount(container._vnode);
+      }
     } else {
       patch((container as any)._vnode || null, vnode, container, null);
     }
