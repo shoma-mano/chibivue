@@ -1,4 +1,5 @@
 import { isArray } from "../shared";
+import { ComputedRefImpl } from "./computed";
 import { type Dep, createDep } from "./dep";
 import { type EffectScope, recordEffectScope } from "./effectScope";
 
@@ -9,6 +10,7 @@ export let activeEffect: ReactiveEffect | undefined;
 
 export class ReactiveEffect<T = any> {
   public deps: Dep[] = [];
+  computed?: ComputedRefImpl<T>;
   constructor(public fn: () => T, scope?: EffectScope) {
     recordEffectScope(this, scope);
   }

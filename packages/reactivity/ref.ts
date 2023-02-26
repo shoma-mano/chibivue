@@ -11,11 +11,11 @@ type RefBase<T> = {
   value: T;
 };
 
-function trackRefValue(ref: RefBase<any>) {
+export function trackRefValue(ref: RefBase<any>) {
   trackEffects(ref.dep || (ref.dep = createDep()));
 }
 
-function triggerRefValue(ref: RefBase<any>) {
+export function triggerRefValue(ref: RefBase<any>) {
   if (ref.dep) triggerEffects(ref.dep);
 }
 
