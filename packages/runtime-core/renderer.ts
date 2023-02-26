@@ -100,6 +100,7 @@ type UnmountChildrenFn = (children: VNode[]) => void;
 
 type SetupRenderEffectFn = (
   instance: ComponentInternalInstance,
+  initialVNode: VNode,
   container: RendererElement,
   anchor: RendererNode | null
 ) => void;
@@ -234,7 +235,7 @@ export function createRenderer(options: RendererOptions) {
     // prettier-ignore
     const instance: ComponentInternalInstance = (initialVNode.component = createComponentInstance(initialVNode));
     setupComponent(instance);
-    setupRenderEffect(instance, container, anchor);
+    setupRenderEffect(instance, initialVNode, container, anchor);
   };
 
   const updateComponent = (n1: VNode, n2: VNode) => {
@@ -245,6 +246,7 @@ export function createRenderer(options: RendererOptions) {
 
   const setupRenderEffect: SetupRenderEffectFn = (
     instance,
+    initialVNode,
     container,
     anchor
   ) => {
@@ -252,6 +254,7 @@ export function createRenderer(options: RendererOptions) {
       if (!instance.isMounted) {
         const subTree = (instance.subTree = renderComponentRoot(instance));
         patch(null, subTree, container, anchor);
+        initialVNode.el = subTree.el;
         instance.isMounted = true;
       } else {
         let { next, vnode } = instance;
