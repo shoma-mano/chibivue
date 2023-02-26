@@ -193,7 +193,7 @@ export function createRenderer<HostElement = RendererElement>(
     if (n1 == null) {
       mountComponent(n2, container, anchor);
     } else {
-      // TODO: patch component
+      updateComponent(n1, n2);
     }
   };
 
@@ -229,6 +229,12 @@ export function createRenderer<HostElement = RendererElement>(
     const instance: ComponentInternalInstance = (initialVNode.component = createComponentInstance(initialVNode));
     setupComponent(instance);
     setupRenderEffect(instance, initialVNode, container, anchor);
+  };
+
+  const updateComponent = (n1: VNode, n2: VNode) => {
+    const instance = (n2.component = n1.component)!;
+    instance.next = n2;
+    instance.update();
   };
 
   const setupRenderEffect: SetupRenderEffectFn = (

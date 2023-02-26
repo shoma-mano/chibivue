@@ -31,7 +31,7 @@ export interface ComponentInternalInstance {
   // directives: Record<string, Directive> | null
 
   render: InternalRenderFunction | null;
-  update: (vNode: VNode) => void;
+  update: () => void;
 
   /**
    * This is the target for the public instance proxy. It also holds properties
