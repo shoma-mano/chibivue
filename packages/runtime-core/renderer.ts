@@ -106,7 +106,11 @@ type SetupRenderEffectFn = (
 ) => void;
 
 // implementation
-export function createRenderer(options: RendererOptions) {
+export function createRenderer(
+  options: RendererOptions
+  // TODO:
+  // createHydrationFns: typeof createHydrationFunctions
+) {
   const {
     insert: hostInsert,
     remove: hostRemove,
@@ -253,6 +257,8 @@ export function createRenderer(options: RendererOptions) {
     const componentUpdateFn = () => {
       if (!instance.isMounted) {
         const subTree = (instance.subTree = renderComponentRoot(instance));
+        // TODO:
+        // hydrateNode!(el as Node, instance.subTree, instance);
         patch(null, subTree, container, anchor);
         initialVNode.el = subTree.el;
         instance.isMounted = true;
@@ -266,8 +272,8 @@ export function createRenderer(options: RendererOptions) {
           next = vnode;
         }
 
-        const nextTree = renderComponentRoot(instance);
         const prevTree = instance.subTree;
+        const nextTree = renderComponentRoot(instance);
         instance.subTree = nextTree;
         patch(
           prevTree,
@@ -306,6 +312,7 @@ export function createRenderer(options: RendererOptions) {
         unmountChildren(c1 as VNode[]);
       }
       if (c2 !== c1) {
+        // FIXME: container is null
         hostSetElementText(container, c2 as string);
       }
     } else {

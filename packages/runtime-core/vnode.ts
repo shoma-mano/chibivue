@@ -99,11 +99,8 @@ export function createTextVNode(text: string = " "): VNode {
 }
 
 export function normalizeVNode(child: VNodeChild): VNode {
-  if (isArray(child)) {
-    // TODO: fragment
-    throw new Error();
-  } else if (typeof child === "object") {
-    return cloneVNode(child);
+  if (typeof child === "object") {
+    return cloneVNode(child as VNode);
   } else {
     // strings and numbers
     return createVNode(Text, null, String(child));
