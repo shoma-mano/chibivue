@@ -141,7 +141,9 @@ export const setupComponent = (instance: ComponentInternalInstance) => {
 
   if (compile && !Component.render) {
     const template = Component.template ?? "";
-    Component.render = compile(template);
+    if (template) {
+      instance.render = compile(template);
+    }
   }
 
   // Options API

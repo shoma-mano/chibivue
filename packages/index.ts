@@ -7,7 +7,7 @@ import { RenderFunction, registerRuntimeCompiler } from "./runtime-core";
 
 function compileToFunction(template: string): RenderFunction {
   const { code } = compile(template);
-  return new Function("Vue", code)(runtimeDom);
+  return new Function("ChibiVue", code)(runtimeDom);
 }
 
 registerRuntimeCompiler(compileToFunction);
