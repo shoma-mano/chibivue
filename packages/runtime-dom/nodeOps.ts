@@ -1,15 +1,15 @@
 import { type RendererOptions } from "../runtime-core";
 
 export const nodeOps: Omit<RendererOptions, "patchProp"> = {
-  createElement: (tagName: string): Element => {
+  createElement: (tagName) => {
     return document.createElement(tagName);
   },
 
-  createText: (text: string): Text => {
+  createText: (text: string) => {
     return document.createTextNode(text);
   },
 
-  createComment: (text: string): Comment => {
+  createComment: (text: string) => {
     return document.createComment(text);
   },
 
@@ -25,18 +25,18 @@ export const nodeOps: Omit<RendererOptions, "patchProp"> = {
     parent.insertBefore(child, anchor || null);
   },
 
-  remove: (child: Node) => {
+  remove: (child) => {
     const parent = child.parentNode;
     if (parent) {
       parent.removeChild(child);
     }
   },
 
-  parentNode: (node: Node) => {
+  parentNode: (node) => {
     return node.parentNode;
   },
 
-  nextSibling: (node: Node) => {
+  nextSibling: (node) => {
     return node.nextSibling;
   },
 };

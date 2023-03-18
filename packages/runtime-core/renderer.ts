@@ -230,7 +230,7 @@ export function createRenderer(options: RendererOptions) {
 
   const mountChildren: MountChildrenFn = (children, container, anchor) => {
     for (let i = 0; i < children.length; i++) {
-      const child = normalizeVNode(children[i]);
+      const child = (children[i] = normalizeVNode(children[i]));
       patch(null, child, container, anchor);
     }
   };
@@ -362,7 +362,7 @@ export function createRenderer(options: RendererOptions) {
     // (a b) d e
     while (i <= e1 && i <= e2) {
       const n1 = c1[i];
-      const n2 = c2[i];
+      const n2 = (c2[i] = normalizeVNode(c2[i]));
       if (isSameVNodeType(n1, n2)) {
         patch(n1, n2, container, null);
       } else {
@@ -376,7 +376,7 @@ export function createRenderer(options: RendererOptions) {
     // d e (b c)
     while (i <= e1 && i <= e2) {
       const n1 = c1[e1];
-      const n2 = c2[e2];
+      const n2 = (c2[i] = normalizeVNode(c2[i]));
       if (isSameVNodeType(n1, n2)) {
         patch(n1, n2, container, null);
       } else {
@@ -398,7 +398,7 @@ export function createRenderer(options: RendererOptions) {
         const nextPos = e2 + 1;
         const anchor = nextPos < l2 ? (c2[nextPos] as VNode).el : parentAnchor;
         while (i <= e2) {
-          patch(null, c2[i], container, anchor);
+          patch(null, (c2[i] = normalizeVNode(c2[i])), container, anchor);
           i++;
         }
       }
@@ -429,7 +429,7 @@ export function createRenderer(options: RendererOptions) {
       // 5.1 build key:index map for newChildren
       const keyToNewIndexMap: Map<string | number | symbol, number> = new Map();
       for (i = s2; i <= e2; i++) {
-        const nextChild = c2[i];
+        const nextChild = (c2[i] = normalizeVNode(c2[i]));
         if (nextChild.key != null) {
           keyToNewIndexMap.set(nextChild.key, i);
         }
