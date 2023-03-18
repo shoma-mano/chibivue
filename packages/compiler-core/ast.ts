@@ -1,4 +1,5 @@
 import { isString } from "../shared";
+import { FRAGMENT, RENDER_LIST } from "./runtimeHelpers";
 import { TransformContext } from "./transform";
 import { PropsExpression } from "./transforms/transformElement";
 import { getVNodeHelper } from "./utils";
@@ -14,6 +15,7 @@ export const enum NodeTypes {
   DIRECTIVE,
 
   COMPOUND_EXPRESSION,
+  FOR,
 
   // codegen
   VNODE_CALL,
@@ -21,6 +23,7 @@ export const enum NodeTypes {
   JS_OBJECT_EXPRESSION,
   JS_PROPERTY,
   JS_ARRAY_EXPRESSION,
+  JS_FUNCTION_EXPRESSION,
 }
 
 export const enum ElementTypes {
@@ -46,11 +49,15 @@ export interface Position {
   column: number;
 }
 
-export type ParentNode = RootNode | ElementNode;
+export type ParentNode = RootNode | ElementNode | ForNode;
 
 export type ExpressionNode = SimpleExpressionNode | CompoundExpressionNode;
 
-export type TemplateChildNode = ElementNode | TextNode | InterpolationNode;
+export type TemplateChildNode =
+  | ElementNode
+  | TextNode
+  | InterpolationNode
+  | ForNode;
 export type TemplateTextChildNode = TextNode | InterpolationNode;
 
 export interface VNodeCall extends Node {
@@ -59,6 +66,7 @@ export interface VNodeCall extends Node {
   props: PropsExpression | undefined;
   children:
     | TemplateChildNode[] // multiple children
+    | ForRenderListExpression // v-for
     | TemplateTextChildNode
     | SimpleExpressionNode // hoisted
     | undefined;
@@ -81,7 +89,13 @@ export type JSChildNode =
 export interface CallExpression extends Node {
   type: NodeTypes.JS_CALL_EXPRESSION;
   callee: string | symbol;
-  arguments: (string | JSChildNode | TemplateChildNode | TemplateChildNode[])[];
+  arguments: (
+    | string
+    | JSChildNode
+    | TemplateChildNode
+    | TemplateChildNode[]
+    | ForIteratorExpression
+  )[];
 }
 
 export interface ObjectExpression extends Node {
@@ -92,6 +106,28 @@ export interface Property extends Node {
   type: NodeTypes.JS_PROPERTY;
   key: ExpressionNode;
   value: JSChildNode;
+}
+
+export interface ArrayExpression extends Node {
+  type: NodeTypes.JS_ARRAY_EXPRESSION;
+  elements: Array<string | Node>;
+}
+
+export interface FunctionExpression extends Node {
+  type: NodeTypes.JS_FUNCTION_EXPRESSION;
+  params: ExpressionNode | string | (ExpressionNode | string)[] | undefined;
+  returns?: TemplateChildNode | TemplateChildNode[] | JSChildNode;
+  newline: boolean;
+  /**
+   * This flag is for codegen to determine whether it needs to generate the
+   * withScopeId() wrapper
+   */
+  isSlot: boolean;
+  /**
+   * __COMPAT__ only, indicates a slot function that should be excluded from
+   * the legacy $scopedSlots instance property.
+   */
+  isNonScopedSlot?: boolean;
 }
 
 export interface RootNode extends Node {
@@ -162,6 +198,15 @@ export interface CompoundExpressionNode extends Node {
   isHandlerKey?: boolean;
 }
 
+export interface ForNode extends Node {
+  type: NodeTypes.FOR;
+  source: ExpressionNode;
+  valueAlias: ExpressionNode | undefined;
+  keyAlias: ExpressionNode | undefined;
+  children: TemplateChildNode[];
+  codegenNode?: ForCodegenNode;
+}
+
 export interface AttributeNode extends Node {
   type: NodeTypes.ATTRIBUTE;
   name: string;
@@ -173,11 +218,6 @@ export interface DirectiveNode extends Node {
   name: string;
   exp: ExpressionNode | undefined;
   arg: ExpressionNode | undefined;
-}
-
-export interface ArrayExpression extends Node {
-  type: NodeTypes.JS_ARRAY_EXPRESSION;
-  elements: Array<string | Node>;
 }
 
 // Codegen Node Types ----------------------------------------------------------
@@ -192,6 +232,24 @@ export interface DirectiveArgumentNode extends ArrayExpression {
     | [string, ExpressionNode]
     | [string, ExpressionNode, ExpressionNode]
     | [string, ExpressionNode, ExpressionNode, ObjectExpression];
+}
+
+export interface ForCodegenNode extends VNodeCall {
+  isBlock: true;
+  tag: typeof FRAGMENT;
+  props: undefined;
+  children: ForRenderListExpression;
+  patchFlag: string;
+  disableTracking: boolean;
+}
+
+export interface ForRenderListExpression extends CallExpression {
+  callee: typeof RENDER_LIST;
+  arguments: [ExpressionNode, ForIteratorExpression];
+}
+
+export interface ForIteratorExpression extends FunctionExpression {
+  returns: VNodeCall;
 }
 
 // AST Utilities ---------------------------------------------------------------
@@ -294,4 +352,17 @@ export function createCompoundExpression(
     children,
     loc,
   };
+}
+
+export function createCallExpression<T extends CallExpression["callee"]>(
+  callee: T,
+  args: CallExpression["arguments"] = [],
+  loc: SourceLocation = locStub
+): CallExpression {
+  return {
+    type: NodeTypes.JS_CALL_EXPRESSION,
+    loc,
+    callee,
+    arguments: args,
+  } as CallExpression;
 }
