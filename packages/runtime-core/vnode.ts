@@ -15,6 +15,7 @@ export interface VNode<HostNode = any> {
   __v_isVNode: true;
   type: VNodeTypes;
   props: VNodeProps | null;
+  key: string | number | symbol | null;
   el: HostNode | undefined;
   children: VNodeNormalizedChildren;
   component: ComponentInternalInstance | null;
@@ -41,6 +42,10 @@ export function isVNode(value: unknown): value is VNode {
   );
 }
 
+export function isSameVNodeType(n1: VNode, n2: VNode): boolean {
+  return n1.type === n2.type && n1.key === n2.key;
+}
+
 export const createVNode = (
   type: VNodeTypes,
   props: VNodeProps | null = null,
@@ -51,19 +56,21 @@ export const createVNode = (
     : isObject(type)
     ? ShapeFlags.COMPONENT
     : 0;
+
   return createBaseVNode(type, props, children, shapeFlag);
 };
 
 function createBaseVNode(
   type: VNodeTypes,
   props: VNodeProps | null,
-  children: unknown,
+  children: unknown = null,
   shapeFlag: ShapeFlags | 0 = ShapeFlags.ELEMENT
 ): VNode {
   const vnode = {
     __v_isVNode: true,
     type,
     props,
+    key: props && props.key,
     children,
     el: null,
     ctx: currentRenderingInstance,
@@ -119,6 +126,7 @@ export function cloneVNode<T>(vnode: VNode<T>): VNode<T> {
     __v_isVNode: true,
     type: vnode.type,
     props,
+    key: vnode.key,
     children: isArray(children)
       ? (children as VNode[]).map(cloneVNode)
       : children,
@@ -202,6 +210,7 @@ if (import.meta.vitest) {
         __v_isVNode: true,
         type: "div",
         props: { id: "foo" },
+        key: null,
         el: null,
         children: "bar",
         component: null,
@@ -227,6 +236,7 @@ if (import.meta.vitest) {
         __v_isVNode: true,
         type: "div",
         props: { id: "foo" },
+        key: null,
         el: null,
         children: ["bar"],
         component: null,
