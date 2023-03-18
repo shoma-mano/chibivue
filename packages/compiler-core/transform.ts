@@ -27,11 +27,20 @@ export interface DirectiveTransformResult {
   props: Property[];
 }
 
+export type StructuralDirectiveTransform = (
+  node: ElementNode,
+  dir: DirectiveNode,
+  context: TransformContext
+) => void | (() => void);
+
 export interface TransformContext extends Required<TransformOptions> {
   helpers: Map<symbol, number>;
   currentNode: RootNode | TemplateChildNode | null;
+  parent: ParentNode | null;
+  childIndex: number;
   helper<T extends symbol>(name: T): T;
   helperString(name: symbol): string;
+  replaceNode(node: TemplateChildNode): void;
 }
 
 export function createTransformContext(
@@ -39,10 +48,12 @@ export function createTransformContext(
   { nodeTransforms = [], directiveTransforms = {} }: TransformOptions
 ): TransformContext {
   const context: TransformContext = {
-    helpers: new Map(),
-    currentNode: root,
     nodeTransforms,
     directiveTransforms,
+    helpers: new Map(),
+    currentNode: root,
+    parent: null,
+    childIndex: 0,
     helper(name) {
       const count = context.helpers.get(name) || 0;
       context.helpers.set(name, count + 1);
@@ -50,6 +61,9 @@ export function createTransformContext(
     },
     helperString(name) {
       return `_${helperNameMap[context.helper(name)]}`;
+    },
+    replaceNode(node) {
+      context.parent!.children[context.childIndex] = context.currentNode = node;
     },
   };
 
@@ -113,6 +127,34 @@ export function traverseChildren(
   for (let i = 0; i < parent.children.length; i++) {
     const child = parent.children[i];
     if (isString(child)) continue;
+    context.parent = parent;
+    context.childIndex = i;
     traverseNode(child, context);
   }
+}
+
+export function createStructuralDirectiveTransform(
+  name: string | RegExp,
+  fn: StructuralDirectiveTransform
+): NodeTransform {
+  const matches = isString(name)
+    ? (n: string) => n === name
+    : (n: string) => name.test(n);
+
+  return (node, context) => {
+    if (node.type === NodeTypes.ELEMENT) {
+      const { props } = node;
+      const exitFns = [];
+      for (let i = 0; i < props.length; i++) {
+        const prop = props[i];
+        if (prop.type === NodeTypes.DIRECTIVE && matches(prop.name)) {
+          props.splice(i, 1);
+          i--;
+          const onExit = fn(node, prop, context);
+          if (onExit) exitFns.push(onExit);
+        }
+      }
+      return exitFns;
+    }
+  };
 }
