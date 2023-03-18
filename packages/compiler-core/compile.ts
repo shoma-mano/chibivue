@@ -6,8 +6,8 @@ import { DirectiveTransform, NodeTransform, transform } from "./transform";
 
 import { transformElement } from "./transforms/transformElement";
 import { transformOn } from "./transforms/vOn";
-import { transformText } from "./transforms/transformText";
 import { transformExpression } from "./transforms/transformExpression";
+import { transformBind } from "./transforms/vBind";
 
 export type TransformPreset = [
   NodeTransform[],
@@ -16,9 +16,10 @@ export type TransformPreset = [
 
 export function getBaseTransformPreset(): TransformPreset {
   return [
-    [transformExpression, transformElement, transformText],
+    [transformExpression, transformElement],
     {
       on: transformOn,
+      bind: transformBind,
     },
   ];
 }
@@ -37,7 +38,7 @@ export function baseCompile(
     directiveTransforms: { ...directiveTransforms },
   });
 
-  // codegenga 
+  // codegenga
   const code = generate(ast, { __BROWSER__ });
 
   return code;
