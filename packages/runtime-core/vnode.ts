@@ -78,9 +78,9 @@ function createBaseVNode(
     component: null,
   } as VNode;
 
-  if (isVNode(type)) {
-    normalizeChildren(vnode, children);
-  } else if (children) {
+  normalizeChildren(vnode, children);
+
+  if (children) {
     vnode.shapeFlag |= isString(children)
       ? ShapeFlags.TEXT_CHILDREN
       : ShapeFlags.ARRAY_CHILDREN;
@@ -97,8 +97,12 @@ export function normalizeChildren(vnode: VNode, children: unknown) {
     children = null;
   } else if (isArray(children)) {
     type = ShapeFlags.ARRAY_CHILDREN;
+  } else if (typeof children === "object") {
+    normalizeChildren(vnode, vnode.children);
+    return;
   } else {
-    children = [createTextVNode(String(children))];
+    children = String(children);
+    type = ShapeFlags.TEXT_CHILDREN;
   }
   vnode.children = children as VNodeNormalizedChildren;
   vnode.shapeFlag |= type;
