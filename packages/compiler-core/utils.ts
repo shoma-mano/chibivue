@@ -1,4 +1,4 @@
-import { Position } from "./ast";
+import { Position, SourceLocation } from "./ast";
 import { CREATE_ELEMENT_VNODE, CREATE_VNODE } from "./runtimeHelpers";
 
 const enum MemberExpLexState {
@@ -102,6 +102,29 @@ export function advancePositionWithMutation(
       : numberOfCharacters - lastNewLinePos;
 
   return pos;
+}
+
+export function getInnerRange(
+  loc: SourceLocation,
+  offset: number,
+  length: number
+): SourceLocation {
+  const source = loc.source.slice(offset, offset + length);
+  const newLoc: SourceLocation = {
+    source,
+    start: advancePositionWithClone(loc.start, loc.source, offset),
+    end: loc.end,
+  };
+
+  if (length != null) {
+    newLoc.end = advancePositionWithClone(
+      loc.start,
+      loc.source,
+      offset + length
+    );
+  }
+
+  return newLoc;
 }
 
 export function advancePositionWithClone(
