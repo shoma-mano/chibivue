@@ -38,7 +38,7 @@ export function baseCompile(
     directiveTransforms: { ...directiveTransforms },
   });
 
-  // codegenga
+  // codegen
   const code = generate(ast, { __BROWSER__ });
 
   return code;
