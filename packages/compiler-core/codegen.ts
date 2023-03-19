@@ -4,6 +4,7 @@ import {
   CallExpression,
   CompoundExpressionNode,
   ExpressionNode,
+  FunctionExpression,
   InterpolationNode,
   JSChildNode,
   NodeTypes,
@@ -179,6 +180,9 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
     case NodeTypes.JS_ARRAY_EXPRESSION:
       genArrayExpression(node, context);
       break;
+    case NodeTypes.JS_FUNCTION_EXPRESSION:
+      genFunctionExpression(node, context);
+      break;
     default: {
       // make sure we exhaust all possible types
       const exhaustiveCheck: never = node;
@@ -286,6 +290,40 @@ function genObjectExpression(node: ObjectExpression, context: CodegenContext) {
 
 function genArrayExpression(node: ArrayExpression, context: CodegenContext) {
   genNodeListAsArray(node.elements as CodegenNode[], context);
+}
+
+function genFunctionExpression(
+  node: FunctionExpression,
+  context: CodegenContext
+) {
+  const { push, indent, deindent } = context;
+  const { params, returns, newline } = node;
+
+  push(`(`, node);
+  if (isArray(params)) {
+    genNodeList(params, context);
+  } else if (params) {
+    genNode(params, context);
+  }
+  push(`) => `);
+  if (newline) {
+    push(`{`);
+    indent();
+  }
+  if (returns) {
+    if (newline) {
+      push(`return `);
+    }
+    if (isArray(returns)) {
+      genNodeListAsArray(returns, context);
+    } else {
+      genNode(returns, context);
+    }
+  }
+  if (newline) {
+    deindent();
+    push(`}`);
+  }
 }
 
 function genNodeListAsArray(
