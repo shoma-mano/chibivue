@@ -20,12 +20,15 @@ export { onMounted } from "./apiLifecycle";
 
 export { h } from "./h";
 
+export { renderList } from "./helpers/renderList";
+
 export {
   type VNode,
   type VNodeProps as VNodeData,
   createTextVNode,
   createVNode,
   createElementVNode,
+  Fragment,
 } from "./vnode";
 
 export { type RendererOptions, createRenderer } from "./renderer";
