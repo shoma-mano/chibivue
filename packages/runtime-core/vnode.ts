@@ -7,9 +7,17 @@ import { type ComponentPublicInstance } from "./componentPublicInstance";
 export type VNodeTypes =
   | string // html element name
   | typeof Text // html text node
+  | typeof Fragment // fragment
   | ComponentPublicInstance; // Vue Component
 
-export const Text = Symbol();
+export const Fragment = Symbol.for("v-fgt") as any as {
+  __isFragment: true;
+  new (): {
+    $props: VNodeProps;
+  };
+};
+
+export const Text = Symbol.for("v-txt");
 
 export interface VNode<HostNode = any> {
   __v_isVNode: true;
