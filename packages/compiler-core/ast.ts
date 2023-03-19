@@ -2,6 +2,7 @@ import { isString } from "../shared";
 import { FRAGMENT, RENDER_LIST } from "./runtimeHelpers";
 import { TransformContext } from "./transform";
 import { PropsExpression } from "./transforms/transformElement";
+import { ForParseResult } from "./transforms/vFor";
 import { getVNodeHelper } from "./utils";
 
 export const enum NodeTypes {
@@ -58,6 +59,7 @@ export type TemplateChildNode =
   | TextNode
   | InterpolationNode
   | ForNode;
+
 export type TemplateTextChildNode = TextNode | InterpolationNode;
 
 export interface VNodeCall extends Node {
@@ -84,18 +86,13 @@ export type JSChildNode =
   | CallExpression
   | ObjectExpression
   | ArrayExpression
-  | ExpressionNode;
+  | ExpressionNode
+  | FunctionExpression;
 
 export interface CallExpression extends Node {
   type: NodeTypes.JS_CALL_EXPRESSION;
   callee: string | symbol;
-  arguments: (
-    | string
-    | JSChildNode
-    | TemplateChildNode
-    | TemplateChildNode[]
-    | ForIteratorExpression
-  )[];
+  arguments: (string | JSChildNode | TemplateChildNode | TemplateChildNode[])[];
 }
 
 export interface ObjectExpression extends Node {
@@ -204,6 +201,7 @@ export interface ForNode extends Node {
   valueAlias: ExpressionNode | undefined;
   keyAlias: ExpressionNode | undefined;
   children: TemplateChildNode[];
+  parseResult: ForParseResult;
   codegenNode?: ForCodegenNode;
 }
 
