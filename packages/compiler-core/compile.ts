@@ -8,6 +8,7 @@ import { transformElement } from "./transforms/transformElement";
 import { transformOn } from "./transforms/vOn";
 import { transformExpression } from "./transforms/transformExpression";
 import { transformBind } from "./transforms/vBind";
+import { transformFor } from "./transforms/vFor";
 
 export type TransformPreset = [
   NodeTransform[],
@@ -16,7 +17,7 @@ export type TransformPreset = [
 
 export function getBaseTransformPreset(): TransformPreset {
   return [
-    [transformExpression, transformElement],
+    [transformFor, transformExpression, transformElement],
     {
       on: transformOn,
       bind: transformBind,
@@ -40,6 +41,11 @@ export function baseCompile(
 
   // codegen
   const code = generate(ast, { __BROWSER__ });
+
+  // FIXME: remove this
+  import("fs").then((fs) => {
+    fs.writeFileSync("./out.json", JSON.stringify(ast, null, 2));
+  });
 
   return code;
 }
