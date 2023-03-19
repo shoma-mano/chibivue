@@ -364,3 +364,20 @@ export function createCallExpression<T extends CallExpression["callee"]>(
     arguments: args,
   } as CallExpression;
 }
+
+export function createFunctionExpression(
+  params: FunctionExpression["params"],
+  returns: FunctionExpression["returns"] = undefined,
+  newline: boolean = false,
+  isSlot: boolean = false,
+  loc: SourceLocation = locStub
+): FunctionExpression {
+  return {
+    type: NodeTypes.JS_FUNCTION_EXPRESSION,
+    params,
+    returns,
+    newline,
+    isSlot,
+    loc,
+  };
+}
