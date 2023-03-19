@@ -18,6 +18,8 @@ import {
 import {
   CREATE_ELEMENT_VNODE,
   CREATE_VNODE,
+  FRAGMENT,
+  RENDER_LIST,
   TO_DISPLAY_STRING,
   TO_HANDLER_KEY,
   helperNameMap,
@@ -132,6 +134,8 @@ function genFunctionPreamble(ast: RootNode, context: CodegenContext) {
     CREATE_ELEMENT_VNODE,
     TO_HANDLER_KEY,
     TO_DISPLAY_STRING,
+    FRAGMENT,
+    RENDER_LIST,
   ]
     .map(aliasHelper)
     .join(", ");
@@ -152,7 +156,8 @@ function genNode(node: CodegenNode | symbol | string, context: CodegenContext) {
   }
 
   switch (node.type) {
-    case NodeTypes.ELEMENT: {
+    case NodeTypes.ELEMENT:
+    case NodeTypes.FOR: {
       genNode(node.codegenNode!, context);
       break;
     }
