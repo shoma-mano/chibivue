@@ -131,8 +131,10 @@ export function parseForExpression(
   if (iteratorMatch) {
     const keyContent = iteratorMatch[1].trim();
     let keyOffset: number | undefined;
-    keyOffset = exp.indexOf(keyContent, trimmedOffset + valueContent.length);
-    result.key = createAliasExpression(loc, keyContent, keyOffset);
+    if (keyContent) {
+      keyOffset = exp.indexOf(keyContent, trimmedOffset + valueContent.length);
+      result.key = createAliasExpression(loc, keyContent, keyOffset);
+    }
 
     if (iteratorMatch[2]) {
       const indexContent = iteratorMatch[2].trim();
@@ -171,10 +173,10 @@ function createAliasExpression(
 }
 
 export function createForLoopParams(
-  { value, key, index }: ForParseResult,
+  { value, index }: ForParseResult,
   memoArgs: ExpressionNode[] = []
 ): ExpressionNode[] {
-  return createParamsList([value, key, index, ...memoArgs]);
+  return createParamsList([value, index, ...memoArgs]);
 }
 
 function createParamsList(
