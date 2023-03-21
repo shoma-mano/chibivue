@@ -11,16 +11,22 @@ export const transformExpression: NodeTransform = (node, context) => {
   } else if (node.type === NodeTypes.ELEMENT) {
     for (let i = 0; i < node.props.length; i++) {
       const dir = node.props[i];
-      if (dir.type === NodeTypes.DIRECTIVE) {
-        const exp = dir.exp;
-        const arg = dir.arg;
+      if (dir.type === NodeTypes.DIRECTIVE && dir.name !== "for") {
+        if (dir.type === NodeTypes.DIRECTIVE) {
+          const exp = dir.exp;
+          const arg = dir.arg;
 
-        if (exp && exp.type === NodeTypes.SIMPLE_EXPRESSION) {
-          dir.exp = processExpression(exp);
-        }
+          if (exp && exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+            dir.exp = processExpression(exp);
+          }
 
-        if (arg && arg.type === NodeTypes.SIMPLE_EXPRESSION && !arg.isStatic) {
-          dir.arg = processExpression(arg);
+          if (
+            arg &&
+            arg.type === NodeTypes.SIMPLE_EXPRESSION &&
+            !arg.isStatic
+          ) {
+            dir.arg = processExpression(arg);
+          }
         }
       }
     }
