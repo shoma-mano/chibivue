@@ -174,6 +174,7 @@ export interface SimpleExpressionNode extends Node {
   type: NodeTypes.SIMPLE_EXPRESSION;
   content: string;
   isStatic: boolean;
+  identifiers?: string[]
 }
 
 export interface CompoundExpressionNode extends Node {
