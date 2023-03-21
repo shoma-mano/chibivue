@@ -7,6 +7,7 @@ import {
   DirectiveNode,
   ElementNode,
   Property,
+  ExpressionNode,
 } from "./ast";
 import { TransformOptions } from "./options";
 import { TO_DISPLAY_STRING, helperNameMap } from "./runtimeHelpers";
@@ -36,11 +37,17 @@ export type StructuralDirectiveTransform = (
 export interface TransformContext extends Required<TransformOptions> {
   helpers: Map<symbol, number>;
   currentNode: RootNode | TemplateChildNode | null;
+  identifiers: { [name: string]: number | undefined };
+  scopes: {
+    vFor: number;
+  };
   parent: ParentNode | null;
   childIndex: number;
   helper<T extends symbol>(name: T): T;
   helperString(name: symbol): string;
   replaceNode(node: TemplateChildNode): void;
+  addIdentifiers(exp: ExpressionNode | string): void;
+  removeIdentifiers(exp: ExpressionNode | string): void;
 }
 
 export function createTransformContext(
@@ -52,6 +59,10 @@ export function createTransformContext(
     directiveTransforms,
     helpers: new Map(),
     currentNode: root,
+    identifiers: Object.create(null),
+    scopes: {
+      vFor: 0,
+    },
     parent: null,
     childIndex: 0,
     helper(name) {
@@ -65,7 +76,37 @@ export function createTransformContext(
     replaceNode(node) {
       context.parent!.children[context.childIndex] = context.currentNode = node;
     },
+    addIdentifiers(exp) {
+      if (isString(exp)) {
+        addId(exp);
+      } else if (exp.identifiers) {
+        exp.identifiers.forEach(addId);
+      } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+        addId(exp.content);
+      }
+    },
+    removeIdentifiers(exp) {
+      if (isString(exp)) {
+        removeId(exp);
+      } else if (exp.identifiers) {
+        exp.identifiers.forEach(removeId);
+      } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+        removeId(exp.content);
+      }
+    },
   };
+
+  function addId(id: string) {
+    const { identifiers } = context;
+    if (identifiers[id] === undefined) {
+      identifiers[id] = 0;
+    }
+    identifiers[id]!++;
+  }
+
+  function removeId(id: string) {
+    context.identifiers[id]!--;
+  }
 
   return context;
 }
