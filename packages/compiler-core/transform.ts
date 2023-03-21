@@ -108,6 +108,7 @@ export function traverseNode(
 
     case NodeTypes.ELEMENT:
     case NodeTypes.ROOT:
+    case NodeTypes.FOR:
       traverseChildren(node, context);
       break;
   }
