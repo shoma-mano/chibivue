@@ -15,7 +15,7 @@ export async function transformMain(
   const { code: scriptCode } = genScriptCode(descriptor, options);
   // template
   const { code: templateCode } = genTemplateCode(descriptor, options);
-  
+
   const attachedProps: [string, string][] = [];
   if (templateCode) {
     attachedProps.push(["render", "_sfc_render"]);
@@ -35,6 +35,11 @@ export async function transformMain(
   }
 
   let resolvedCode = output.join("\n");
+
+  // FIXME: remove this
+  import("fs").then((fs) => {
+    fs.writeFileSync("./resolved.js", resolvedCode);
+  });
 
   return { code: resolvedCode };
 }

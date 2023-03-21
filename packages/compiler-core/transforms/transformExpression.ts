@@ -3,11 +3,15 @@ import {
   SimpleExpressionNode,
   createSimpleExpression,
 } from "../ast";
-import { NodeTransform } from "../transform";
+import { NodeTransform, TransformContext } from "../transform";
+import { isSimpleIdentifier } from "../utils";
 
 export const transformExpression: NodeTransform = (node, context) => {
   if (node.type === NodeTypes.INTERPOLATION) {
-    node.content = processExpression(node.content as SimpleExpressionNode);
+    node.content = processExpression(
+      node.content as SimpleExpressionNode,
+      context
+    );
   } else if (node.type === NodeTypes.ELEMENT) {
     for (let i = 0; i < node.props.length; i++) {
       const dir = node.props[i];
@@ -17,7 +21,7 @@ export const transformExpression: NodeTransform = (node, context) => {
           const arg = dir.arg;
 
           if (exp && exp.type === NodeTypes.SIMPLE_EXPRESSION) {
-            dir.exp = processExpression(exp);
+            dir.exp = processExpression(exp, context);
           }
 
           if (
@@ -25,7 +29,7 @@ export const transformExpression: NodeTransform = (node, context) => {
             arg.type === NodeTypes.SIMPLE_EXPRESSION &&
             !arg.isStatic
           ) {
-            dir.arg = processExpression(arg);
+            dir.arg = processExpression(arg, context);
           }
         }
       }
@@ -34,8 +38,18 @@ export const transformExpression: NodeTransform = (node, context) => {
 };
 
 export function processExpression(
-  node: SimpleExpressionNode
+  node: SimpleExpressionNode,
+  context: TransformContext
 ): SimpleExpressionNode {
   // TODO: walk tree and process expressions
+  // fast path if expression is a simple identifier.
+  // const rawExp = node.content;
+  // if (isSimpleIdentifier(rawExp)) {
+  //   const isScopeVarReference = context.identifiers[rawExp];
+  //   if (!isScopeVarReference) {
+  //     return node;
+  //   }
+  // }
+
   return createSimpleExpression(`_ctx.${node.content}`);
 }

@@ -68,8 +68,10 @@ export function processFor(
     context
   );
 
+  const { addIdentifiers, removeIdentifiers, scopes } = context;
+
   // TODO: error handling when parseResult is undefined
-  const { source, value, key } = parseResult!;
+  const { source, value, key, index } = parseResult!;
 
   const forNode: ForNode = {
     type: NodeTypes.FOR,
@@ -83,9 +85,22 @@ export function processFor(
 
   context.replaceNode(forNode);
 
+  // bookkeeping
+  scopes.vFor++;
+  // scope management
+  // inject identifiers to context
+  value && addIdentifiers(value);
+  key && addIdentifiers(key);
+  index && addIdentifiers(index);
+
   const onExit = processCodegen && processCodegen(forNode);
 
   return () => {
+    scopes.vFor--;
+    value && removeIdentifiers(value);
+    key && removeIdentifiers(key);
+    index && removeIdentifiers(index);
+
     if (onExit) onExit();
   };
 }
@@ -122,7 +137,10 @@ export function parseForExpression(
     index: undefined,
   };
 
-  result.source = processExpression(result.source as SimpleExpressionNode);
+  result.source = processExpression(
+    result.source as SimpleExpressionNode,
+    context
+  );
 
   let valueContent = LHS.trim().replace(stripParensRE, "").trim();
   const iteratorMatch = valueContent.match(forIteratorRE);

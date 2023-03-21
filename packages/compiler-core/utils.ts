@@ -1,6 +1,10 @@
 import { Position, SourceLocation } from "./ast";
 import { CREATE_ELEMENT_VNODE, CREATE_VNODE } from "./runtimeHelpers";
 
+const nonIdentifierRE = /^\d|[^\$\w]/;
+export const isSimpleIdentifier = (name: string): boolean =>
+  !nonIdentifierRE.test(name);
+
 const enum MemberExpLexState {
   inMemberExp,
   inBrackets,
