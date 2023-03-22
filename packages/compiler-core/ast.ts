@@ -142,6 +142,7 @@ export interface BaseElementNode extends Node {
   tagType: ElementTypes;
   props: Array<AttributeNode | DirectiveNode>;
   children: TemplateChildNode[];
+  isSelfClosing: boolean
 }
 
 export interface PlainElementNode extends BaseElementNode {

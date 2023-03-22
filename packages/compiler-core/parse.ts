@@ -195,6 +195,10 @@ function parseElement(
   const parent = last(ancestors);
   const element = parseTag(context, TagType.Start);
 
+  if (element.isSelfClosing) {
+    return element;
+  }
+
   // Children.
   ancestors.push(element);
   const mode = context.options.getTextMode!(element, parent);
@@ -246,6 +250,7 @@ function parseTag(context: ParserContext, type: TagType): ElementNode {
     tagType,
     props,
     children: [],
+    isSelfClosing,
     codegenNode: undefined, // to be created during transform phase
     loc: getSelection(context, start),
   };
