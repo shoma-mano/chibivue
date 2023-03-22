@@ -24,7 +24,11 @@ export interface VNode<HostNode = any> {
   type: VNodeTypes;
   props: VNodeProps | null;
   key: string | number | symbol | null;
+
+  // DOM
   el: HostNode | undefined;
+  anchor: HostNode | null; // fragment anchor
+
   children: VNodeNormalizedChildren;
   component: ComponentInternalInstance | null;
   ctx: ComponentPublicInstance | null;
@@ -81,6 +85,7 @@ function createBaseVNode(
     key: props && props.key,
     children,
     el: null,
+    anchor: null,
     ctx: currentRenderingInstance,
     shapeFlag,
     component: null,
@@ -145,6 +150,7 @@ export function cloneVNode<T>(vnode: VNode<T>): VNode<T> {
     component: vnode.component,
     shapeFlag: vnode.shapeFlag,
     el: vnode.el,
+    anchor: vnode.anchor,
     ctx: vnode.ctx,
   };
   return cloned;
@@ -224,6 +230,7 @@ if (import.meta.vitest) {
         props: { id: "foo" },
         key: null,
         el: null,
+        anchor: null,
         children: "bar",
         component: null,
         ctx: null,
@@ -250,6 +257,7 @@ if (import.meta.vitest) {
         props: { id: "foo" },
         key: null,
         el: null,
+        anchor: null,
         children: ["bar"],
         component: null,
         ctx: null,

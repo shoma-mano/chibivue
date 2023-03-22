@@ -14,6 +14,7 @@ import {
   type VNode,
   type VNodeArrayChildren,
   isSameVNodeType,
+  Fragment,
 } from "./vnode";
 
 export type RootRenderFunction<HostElement = RendererElement> = (
@@ -31,7 +32,7 @@ export interface RendererOptions<
   insert(
     parentNode: HostNode,
     newNode: HostNode,
-    referenceNode: HostNode
+    anchor?: HostNode | null
   ): void;
   remove(child: HostNode): void;
 
@@ -130,6 +131,8 @@ export function createRenderer(options: RendererOptions) {
     const { type, shapeFlag } = n2;
     if (type === Text) {
       processText(n1, n2, container, anchor);
+    } else if (type === Fragment) {
+      processFragment(n1, n2, container, anchor);
     } else if (shapeFlag & ShapeFlags.ELEMENT) {
       processElement(n1, n2, container, anchor);
     } else if (shapeFlag & ShapeFlags.COMPONENT) {
@@ -225,6 +228,30 @@ export function createRenderer(options: RendererOptions) {
       if (next !== prev) {
         hostPatchProp(el, key, prev, next);
       }
+    }
+  };
+
+  const processFragment = (
+    n1: VNode | null,
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null
+  ) => {
+    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(""))!;
+    const fragmentEndAnchor = (n2.anchor = n1
+      ? n1.anchor
+      : hostCreateText(""))!;
+
+    if (n1 == null) {
+      hostInsert(fragmentStartAnchor, container, anchor);
+      hostInsert(fragmentEndAnchor, container, anchor);
+      mountChildren(
+        n2.children as VNodeArrayChildren,
+        container,
+        fragmentEndAnchor
+      );
+    } else {
+      patchChildren(n1, n2, container, fragmentEndAnchor);
     }
   };
 
