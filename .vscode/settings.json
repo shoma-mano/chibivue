@@ -3,6 +3,7 @@
     "augmentor",
     "chibi",
     "deindent",
+    "estree",
     "RAWTEXT",
     "RCDATA",
     "vdom",
