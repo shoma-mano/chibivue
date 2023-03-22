@@ -105,7 +105,7 @@ export function processFor(
   };
 }
 
-const forAliasRE = /([\s\S]*?)\s+(?:in)\s+([\s\S]*)/;
+const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
 const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
 const stripParensRE = /^\(|\)$/g;
 
@@ -123,6 +123,7 @@ export function parseForExpression(
   const loc = input.loc;
   const exp = input.content;
   const inMatch = exp.match(forAliasRE);
+
   if (!inMatch) return;
 
   const [, LHS, RHS] = inMatch;
@@ -147,6 +148,7 @@ export function parseForExpression(
   const trimmedOffset = LHS.indexOf(valueContent);
 
   if (iteratorMatch) {
+    valueContent = valueContent.replace(forIteratorRE, "").trim();
     const keyContent = iteratorMatch[1].trim();
     let keyOffset: number | undefined;
     if (keyContent) {
@@ -191,10 +193,10 @@ function createAliasExpression(
 }
 
 export function createForLoopParams(
-  { value, index }: ForParseResult,
+  { value, key, index }: ForParseResult,
   memoArgs: ExpressionNode[] = []
 ): ExpressionNode[] {
-  return createParamsList([value, index, ...memoArgs]);
+  return createParamsList([value, key, index, ...memoArgs]);
 }
 
 function createParamsList(
