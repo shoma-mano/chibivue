@@ -1,10 +1,10 @@
-import {
-  NodeTypes,
-  SimpleExpressionNode,
-  createSimpleExpression,
-} from "../ast";
-import { NodeTransform, TransformContext } from "../transform";
+import { parse } from "@babel/parser";
+import { Identifier, Node } from "@babel/types";
+
 import { isSimpleIdentifier } from "../utils";
+import { walkIdentifiers } from "../babelUtils";
+import { ExpressionNode, NodeTypes, SimpleExpressionNode } from "../ast";
+import { NodeTransform, TransformContext } from "../transform";
 
 export const transformExpression: NodeTransform = (node, context) => {
   if (node.type === NodeTypes.INTERPOLATION) {
@@ -37,19 +37,43 @@ export const transformExpression: NodeTransform = (node, context) => {
   }
 };
 
+interface PrefixMeta {
+  start: number;
+  end: number;
+}
+
 export function processExpression(
   node: SimpleExpressionNode,
   context: TransformContext
-): SimpleExpressionNode {
-  // TODO: walk tree and process expressions
-  // fast path if expression is a simple identifier.
-  // const rawExp = node.content;
-  // if (isSimpleIdentifier(rawExp)) {
-  //   const isScopeVarReference = context.identifiers[rawExp];
-  //   if (!isScopeVarReference) {
-  //     return node;
-  //   }
-  // }
+): ExpressionNode {
+  const rawExp = node.content;
+  const rewriteIdentifier = (raw: string) => {
+    return `_ctx.${raw}`;
+  };
 
-  return createSimpleExpression(`_ctx.${node.content}`);
+  if (isSimpleIdentifier(rawExp)) {
+    const isScopeVarReference = context.identifiers[rawExp];
+    if (!isScopeVarReference) {
+      node.content = rewriteIdentifier(rawExp);
+      return node;
+    }
+  }
+
+  // find ids
+  const ast = parse(rawExp).program;
+  type QualifiedId = Identifier & PrefixMeta;
+  const ids: QualifiedId[] = [];
+  const parentStack: Node[] = [];
+  const knownIds: Record<string, number> = Object.create(context.identifiers);
+  walkIdentifiers(
+    ast,
+    (node, _, __, isReferenced, isLocal) => {
+      if (isReferenced && !isLocal) node.name = rewriteIdentifier(node.name);
+      ids.push(node as QualifiedId);
+    },
+    parentStack,
+    knownIds
+  );
+
+  return node;
 }
