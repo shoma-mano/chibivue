@@ -57,52 +57,63 @@ Currently, I am still in the process of implementation, but after implementation
 | key attribute   | ✅   | ✅   |
 | scheduler       | ✅   | ✅   |
 | nextTick        | ✅   | ✅   |
-| ssr             |      |      |
+| SSR             |      |      |
 
 ## Component System
 
-| feature                      | impl | book |
-| ---------------------------- | ---- | ---- |
-| Options API (typed)          | ✅   | ✅   |
-| Composition API              | ✅   | ✅   |
-| lifecycle hooks              | ✅   | ✅   |
-| props / emit                 | ✅   | ✅   |
-| expose                       | ✅   | ✅   |
-| provide / inject             | ✅   | ✅   |
-| slot (default)               | ✅   | ✅   |
-| slot (named/scoped)          | ✅   | ✅   |
-| async component and suspense |      |      |
+| feature             | impl | book |
+| ------------------- | ---- | ---- |
+| Options API (typed) | ✅   | ✅   |
+| Composition API     | ✅   | ✅   |
+| lifecycle hooks     | ✅   | ✅   |
+| props / emit        | ✅   | ✅   |
+| expose              | ✅   | ✅   |
+| provide / inject    | ✅   | ✅   |
+| slot (default)      | ✅   | ✅   |
+| slot (named/scoped) | ✅   | ✅   |
+| error handling      |      |      |
 
 ## Template Compiler
 
-| feature           | impl | book |
-| ----------------- | ---- | ---- |
-| v-on              | ✅   |      |
-| v-bind            | ✅   |      |
-| v-for             | ✅   |      |
-| v-model           | ✅   |      |
-| v-if              |      |      |
-| v-show            |      |      |
-| mustache          | ✅   |      |
-| slot (default)    |      |      |
-| slot (named)      |      |      |
-| slot (scoped)     |      |      |
-| dynamic component |      |      |
+| feature                      | impl | book |
+| ---------------------------- | ---- | ---- |
+| basic (tag, props, children) | ✅   | ✅   |
+| component                    | ✅   |      |
+| comment out                  |      |      |
+| v-on                         | ✅   |      |
+| v-bind                       | ✅   |      |
+| v-for                        | ✅   |      |
+| v-if                         |      |      |
+| v-model                      | ✅   |      |
+| v-show                       |      |      |
+| mustache                     | ✅   |      |
+| slot (default)               |      |      |
+| slot (named)                 |      |      |
+| slot (scoped)                |      |      |
+| compiler optimizations       |      |      |
 
 ## SFC Compiler
 
-| feature                          | impl | book |
-| -------------------------------- | ---- | ---- |
-| basics (template, script, style) | ✅   | ✅   |
-| scoped css                       |      |      |
-| script setup                     | ✅   |      |
-| compiler macro                   | ✅   |      |
+| feature                                  | impl | book |
+| ---------------------------------------- | ---- | ---- |
+| basics (template, script, style)         | ✅   | ✅   |
+| script setup                             | ✅   |      |
+| compiler macro (defineProps/defineEmits) | ✅   |      |
+| pre-processors                           |      |      |
+| scoped css                               |      |      |
+| top level await                          |      |      |
+| v-bind in CSS                            |      |      |
 
 ## Extensions and Other Builtin
 
-| feature    | impl | book |
-| ---------- | ---- | ---- |
-| store      | ✅   |      |
-| router     | ✅   |      |
-| keep-alive |      |      |
-| suspense   |      |      |
+| feature           | impl | book |
+| ----------------- | ---- | ---- |
+| keep-alive        |      |      |
+| transition        |      |      |
+| teleport          |      |      |
+| suspense          |      |      |
+| async component   |      |      |
+| dynamic component |      |      |
+| global state      | ✅   |      |
+| routing           | ✅   |      |
+| testing           |      |      |
