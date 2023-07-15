@@ -97,7 +97,7 @@ data をリアクティブにしたければ reactive 関数をここで呼び�
 
 applyOptions が実行される前には setCurrentInstance によってインスタンスがセットされているので、いつもと同じようにこれまで作ってきた api(CompositionAPI)を呼んであげれば OK です。
 
-`$`から始まる property については componentPublicInstance の方の実装で、PublicInstanceProxyHandlers の getter で制御しています。
+`$`から始まるプロパティについては componentPublicInstance の方の実装で、PublicInstanceProxyHandlers の getter で制御しています。
 
 # Options API の型付
 
@@ -107,7 +107,7 @@ applyOptions が実行される前には setCurrentInstance によってイン�
 
 難しいポイントとしては、各オプションのユーザーの定義によって this の型が変動する点です。data オプションで number 型の count というプロパティを定義した場合には computed や method での this には `count: number` が推論されたいわけです。
 
-もちろん、props だけではなく computed や methods でに定義されたものについてもです。
+もちろん、data だけではなく computed や methods でに定義されたものについても同様です。
 
 ```ts
 const App = defineComponent({
@@ -132,12 +132,11 @@ const App = defineComponent({
 
 これを実現するには少々複雑な型パズルを実装する必要があります。(たくさんジェネリクスでバケツリレーします。)
 
-defineComponent に対する型付を起点に、ComponentOptions, ComponentPublicInstance にリレーするために幾つかの型を実装します。  
-ComponentPublicInstanceConstructor と CreateComponentPublicInstance がそのひとつです。
+defineComponent に対する型付を起点に、ComponentOptions, ComponentPublicInstance にリレーするためにいくつかの型を実装します。  
 
 ここでは一旦、data オプションと methods に絞って説明します。
 
-ますいつもの ComponentOptions という型です。
+まずはいつもの ComponentOptions という型です。
 こちらもジェネリックに拡張し、data と methods の型を受け取れるように D と M いうパラメータを取るようにします。
 
 ```ts
@@ -191,7 +190,7 @@ type ComponentOptions<D = {}, M extends MethodOptions = MethodOptions> = {
 
 実際には props であったり、computed, inject など様々な型を推論する必要がありますが、基本原理はこれと同じです。  
 ぱっと見ジェネリクスがたくさんあったり、型の変換(inject から key だけを取り出したり)が混ざっているのでウッとなってしまうかもしれませんが落ち着いて原理に戻っと実装すれば大丈夫なはずです。  
-本書のコードでは本家の Vue をインスパイアして、`CreateComponentPublicInstance`という抽象化を一段階挟んでいたり、`ComponentPublicInstanceConstructor`と言う型を実装していますが、あまり気にしないでください。(興味があればそこも読んでみてください！)Ï
+本書のコードでは本家の Vue をインスパイアして、`CreateComponentPublicInstance`という抽象化を一段階挟んでいたり、`ComponentPublicInstanceConstructor`と言う型を実装していますが、あまり気にしないでください。(興味があればそこも読んでみてください！)
 
 ここまでのソースコード:  
 https://github.com/Ubugeeei/chibivue/tree/main/books/chapter_codes/340-bcs-option_api

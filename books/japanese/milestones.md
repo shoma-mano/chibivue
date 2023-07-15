@@ -17,7 +17,7 @@
 - computed api ✅
 - watch api ✅
   - imm ✅
-  - cleanup ✅ 
+  - cleanup ✅
 - deeply reactive ✅
 - template ref ✅
 - custom ref ✅
@@ -27,11 +27,11 @@
 
 - lifecycle hooks ✅
 - provide/inject ✅
-- proxy
-- slot
-  - default
-  - named
-- options api
+- proxy ✅
+- slot ✅
+  - default ✅
+  - named ✅
+- options api ✅
 
 # ★ Basic Template Compiler 部門
 
@@ -53,15 +53,22 @@
 
 # ★ Web Application Essentials 部門 (付録)
 
+- error handling
+- keep-alive
+- suspense
+- teleport ?
+- transition ?
+- async component
+- dynamic component
+- SSR
+- compiler optimization (Static Hoisting & Patch Flags & Tree Flattening)
+
+---
+
 - router
 - store
-- suspense
-- keep-alive
+- testing
 - typescript
-
-## NOTE:
-
-- ssr
 
 
 [Prev](https://github.com/Ubugeeei/chibivue/blob/main/books/japanese/530_scoped_css.md) | Next
