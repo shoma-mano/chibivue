@@ -1,32 +1,32 @@
-import { createApp, defineComponent, ref } from "chibivue";
+import { createApp, defineComponent } from "chibivue";
 
 const App = defineComponent({
   setup() {
-    const inputText = ref("");
+    const FRUITS = [
+      {
+        name: "Apple",
+        color: "red",
+      },
+      {
+        name: "Banana",
+        color: "yellow",
+      },
+      {
+        name: "Orange",
+        color: "orange",
+      },
+    ];
 
-    const buffer = ref("");
-    const handleInput = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      buffer.value = target.value;
-    };
-    const submit = () => {
-      inputText.value = buffer.value;
-      buffer.value = "";
-    };
-
-    return { inputText, buffer, handleInput, submit };
+    return { FRUITS };
   },
 
   template: `<div>
-    <form>
-      <input 
-        :value="buffer" 
-        @input="handleInput" 
-        @keydown.prevent.meta.enter="submit" 
-      />
-    </form>
-    <p>inputText: {{ inputText }}</p>
-</div>`,
+    <ul>
+      <li v-for="fruit in FRUITS" :key="fruit.name">
+        <span :style="{ color: fruit.color }"> {{ fruit.name }} </span>
+      </li>
+    </ul>
+  </div>`,
 });
 
 const app = createApp(App);

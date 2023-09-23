@@ -7,6 +7,7 @@ import {
   Property,
   ElementNode,
   DirectiveNode,
+  ExpressionNode,
 } from "./ast";
 import { TransformOptions } from "./options";
 import { helperNameMap } from "./runtimeHelpers";
@@ -27,13 +28,24 @@ export interface DirectiveTransformResult {
   props: Property[];
 }
 
+export type StructuralDirectiveTransform = (
+  node: ElementNode,
+  dir: DirectiveNode,
+  context: TransformContext
+) => void | (() => void);
+
 export interface TransformContext extends Required<TransformOptions> {
   currentNode: RootNode | TemplateChildNode | null;
   parent: ParentNode | null;
   childIndex: number;
   helpers: Map<symbol, number>;
+  identifiers: { [name: string]: number | undefined };
+  scopes: { vFor: number };
   helper<T extends symbol>(name: T): T;
   helperString(name: symbol): string;
+  replaceNode(node: TemplateChildNode): void;
+  addIdentifiers(exp: ExpressionNode | string): void;
+  removeIdentifiers(exp: ExpressionNode | string): void;
 }
 
 export function createTransformContext(
@@ -47,6 +59,8 @@ export function createTransformContext(
     parent: null,
     childIndex: 0,
     helpers: new Map(),
+    identifiers: Object.create(null),
+    scopes: { vFor: 0 },
     helper(name) {
       const count = context.helpers.get(name) || 0;
       context.helpers.set(name, count + 1);
@@ -55,7 +69,40 @@ export function createTransformContext(
     helperString(name) {
       return `_${helperNameMap[context.helper(name)]}`;
     },
+    replaceNode(node) {
+      context.parent!.children[context.childIndex] = context.currentNode = node;
+    },
+    addIdentifiers(exp) {
+      if (isString(exp)) {
+        addId(exp);
+      } else if (exp.identifiers) {
+        exp.identifiers.forEach(addId);
+      } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+        addId(exp.content);
+      }
+    },
+    removeIdentifiers(exp) {
+      if (isString(exp)) {
+        removeId(exp);
+      } else if (exp.identifiers) {
+        exp.identifiers.forEach(removeId);
+      } else if (exp.type === NodeTypes.SIMPLE_EXPRESSION) {
+        removeId(exp.content);
+      }
+    },
   };
+
+  function addId(id: string) {
+    const { identifiers } = context;
+    if (identifiers[id] === undefined) {
+      identifiers[id] = 0;
+    }
+    identifiers[id]!++;
+  }
+
+  function removeId(id: string) {
+    context.identifiers[id]!--;
+  }
 
   return context;
 }
@@ -95,6 +142,7 @@ export function traverseNode(
       break;
     case NodeTypes.ELEMENT:
     case NodeTypes.ROOT:
+    case NodeTypes.FOR:
       traverseChildren(node, context);
       break;
   }
@@ -117,4 +165,30 @@ export function traverseChildren(
     context.childIndex = i;
     traverseNode(child, context);
   }
+}
+
+export function createStructuralDirectiveTransform(
+  name: string | RegExp,
+  fn: StructuralDirectiveTransform
+): NodeTransform {
+  const matches = isString(name)
+    ? (n: string) => n === name
+    : (n: string) => name.test(n);
+
+  return (node, context) => {
+    if (node.type === NodeTypes.ELEMENT) {
+      const { props } = node;
+      const exitFns = [];
+      for (let i = 0; i < props.length; i++) {
+        const prop = props[i];
+        if (prop.type === NodeTypes.DIRECTIVE && matches(prop.name)) {
+          props.splice(i, 1);
+          i--;
+          const onExit = fn(node, prop, context);
+          if (onExit) exitFns.push(onExit);
+        }
+      }
+      return exitFns;
+    }
+  };
 }

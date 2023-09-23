@@ -2,6 +2,7 @@ import {
   AttributeNode,
   DirectiveNode,
   ElementNode,
+  ElementTypes,
   ExpressionNode,
   InterpolationNode,
   NodeTypes,
@@ -163,7 +164,12 @@ function parseInterpolation(
 
   return {
     type: NodeTypes.INTERPOLATION,
-    content,
+    content: {
+      type: NodeTypes.SIMPLE_EXPRESSION,
+      isStatic: false,
+      content,
+      loc: getSelection(context, innerStart, innerEnd),
+    },
     loc: getSelection(context, start),
   };
 }
@@ -240,9 +246,16 @@ function parseTag(context: ParserContext, type: TagType): ElementNode {
   isSelfClosing = startsWith(context.source, "/>");
   advanceBy(context, isSelfClosing ? 2 : 1);
 
+  let tagType = ElementTypes.ELEMENT;
+
+  if (tag === "template") {
+    tagType = ElementTypes.TEMPLATE;
+  }
+
   return {
     type: NodeTypes.ELEMENT,
     tag,
+    tagType,
     props,
     children: [],
     isSelfClosing,

@@ -14,7 +14,13 @@ import {
   queueJob,
   queuePostFlushCb,
 } from "./scheduler";
-import { VNode, Text, normalizeVNode, isSameVNodeType } from "./vnode";
+import {
+  VNode,
+  Text,
+  normalizeVNode,
+  isSameVNodeType,
+  Fragment,
+} from "./vnode";
 
 export type RootRenderFunction<HostElement = RendererElement> = (
   vnode: VNode | null,
@@ -77,6 +83,8 @@ export function createRenderer(options: RendererOptions) {
     const { type, ref, shapeFlag } = n2;
     if (type === Text) {
       processText(n1, n2, container, anchor);
+    } else if (type === Fragment) {
+      processFragment(n1, n2, container, anchor, parentComponent);
     } else if (shapeFlag & ShapeFlags.ELEMENT) {
       processElement(n1, n2, container, anchor, parentComponent);
     } else if (shapeFlag & ShapeFlags.COMPONENT) {
@@ -375,13 +383,39 @@ export function createRenderer(options: RendererOptions) {
       hostInsert(
         (n2.el = hostCreateText(n2.children as string)),
         container,
-        anchor
+        anchor // TODO:
       );
     } else {
       const el = (n2.el = n1.el!);
       if (n2.children !== n1.children) {
         hostSetText(el, n2.children as string);
       }
+    }
+  };
+
+  const processFragment = (
+    n1: VNode | null,
+    n2: VNode,
+    container: RendererElement,
+    anchor: RendererNode | null,
+    parentComponent: ComponentInternalInstance | null
+  ) => {
+    const fragmentStartAnchor = (n2.el = n1 ? n1.el : hostCreateText(""))!;
+    const fragmentEndAnchor = (n2.anchor = n1
+      ? n1.anchor
+      : hostCreateText(""))!;
+
+    if (n1 == null) {
+      hostInsert(fragmentStartAnchor, container, anchor);
+      hostInsert(fragmentEndAnchor, container, anchor);
+      mountChildren(
+        n2.children as VNode[],
+        container,
+        fragmentEndAnchor,
+        parentComponent
+      );
+    } else {
+      patchChildren(n1, n2, container, fragmentEndAnchor, parentComponent);
     }
   };
 

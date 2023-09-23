@@ -1,7 +1,17 @@
-import { JSChildNode, NodeTypes, Position, SimpleExpressionNode } from "./ast";
+import {
+  JSChildNode,
+  NodeTypes,
+  Position,
+  SimpleExpressionNode,
+  SourceLocation,
+} from "./ast";
 
 export const isStaticExp = (p: JSChildNode): p is SimpleExpressionNode =>
   p.type === NodeTypes.SIMPLE_EXPRESSION && p.isStatic;
+
+const nonIdentifierRE = /^\d|[^\$\w]/;
+export const isSimpleIdentifier = (name: string): boolean =>
+  !nonIdentifierRE.test(name);
 
 const enum MemberExpLexState {
   inMemberExp,
@@ -111,4 +121,27 @@ export function advancePositionWithMutation(
       : numberOfCharacters - lastNewLinePos;
 
   return pos;
+}
+
+export function getInnerRange(
+  loc: SourceLocation,
+  offset: number,
+  length: number
+): SourceLocation {
+  const source = loc.source.slice(offset, offset + length);
+  const newLoc: SourceLocation = {
+    source,
+    start: advancePositionWithClone(loc.start, loc.source, offset),
+    end: loc.end,
+  };
+
+  if (length != null) {
+    newLoc.end = advancePositionWithClone(
+      loc.start,
+      loc.source,
+      offset + length
+    );
+  }
+
+  return newLoc;
 }

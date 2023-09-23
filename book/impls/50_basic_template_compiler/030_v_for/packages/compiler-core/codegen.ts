@@ -1,9 +1,10 @@
-import { isArray, isString } from "../shared";
+import { isArray, isString, isSymbol } from "../shared";
 import {
   ArrayExpression,
   CallExpression,
   CompoundExpressionNode,
   ExpressionNode,
+  FunctionExpression,
   InterpolationNode,
   JSChildNode,
   NodeTypes,
@@ -18,11 +19,6 @@ import { CompilerOptions } from "./options";
 import { CREATE_VNODE, helperNameMap } from "./runtimeHelpers";
 
 const CONSTANT = {
-  vNodeFuncName: "h",
-  mergeProps: "mergeProps",
-  normalizeClass: "normalizeClass",
-  normalizeStyle: "normalizeStyle",
-  normalizeProps: "normalizeProps",
   ctxIdent: "_ctx",
 };
 
@@ -131,7 +127,7 @@ function genFunctionPreamble(ast: RootNode, context: CodegenContext) {
 }
 
 const genNode = (
-  node: CodegenNode,
+  node: CodegenNode | string,
   context: CodegenContext,
   option: CompilerOptions
 ) => {
@@ -140,38 +136,58 @@ const genNode = (
     return;
   }
 
+  if (isSymbol(node)) {
+    context.push(context.helper(node));
+    return;
+  }
+
   switch (node.type) {
     case NodeTypes.ELEMENT:
+    case NodeTypes.FOR: {
       genNode(node.codegenNode!, context, option);
       break;
-    case NodeTypes.TEXT:
+    }
+    case NodeTypes.TEXT: {
       genText(node, context);
       break;
-    case NodeTypes.SIMPLE_EXPRESSION:
+    }
+    case NodeTypes.SIMPLE_EXPRESSION: {
       genExpression(node, context);
       break;
-    case NodeTypes.INTERPOLATION:
+    }
+    case NodeTypes.INTERPOLATION: {
       genInterpolation(node, context, option);
       break;
-    case NodeTypes.VNODE_CALL:
+    }
+    case NodeTypes.VNODE_CALL: {
       genVNodeCall(node, context, option);
       break;
-    case NodeTypes.COMPOUND_EXPRESSION:
+    }
+    case NodeTypes.COMPOUND_EXPRESSION: {
       genCompoundExpression(node, context, option);
       break;
-    case NodeTypes.JS_CALL_EXPRESSION:
+    }
+    case NodeTypes.JS_CALL_EXPRESSION: {
       genCallExpression(node, context, option);
       break;
-    case NodeTypes.JS_OBJECT_EXPRESSION:
+    }
+    case NodeTypes.JS_OBJECT_EXPRESSION: {
       genObjectExpression(node, context, option);
       break;
-    case NodeTypes.JS_ARRAY_EXPRESSION:
+    }
+    case NodeTypes.JS_ARRAY_EXPRESSION: {
       genArrayExpression(node, context, option);
       break;
-    default:
+    }
+    case NodeTypes.JS_FUNCTION_EXPRESSION: {
+      genFunctionExpression(node, context, option);
+      break;
+    }
+    default: {
       // make sure we exhaust all possible types
       const exhaustiveCheck: never = node;
       return exhaustiveCheck;
+    }
   }
 };
 
@@ -193,7 +209,7 @@ function genInterpolation(
   if (!option.isBrowser) {
     push(`${CONSTANT.ctxIdent}.`);
   }
-  push(node.content);
+  genNode(node.content, context, option);
 }
 
 function genCompoundExpression(
@@ -305,6 +321,41 @@ function genNodeListAsArray(
   context.push(`[`);
   genNodeList(nodes, context, option);
   context.push(`]`);
+}
+
+function genFunctionExpression(
+  node: FunctionExpression,
+  context: CodegenContext,
+  option: CompilerOptions
+) {
+  const { push, indent, deindent } = context;
+  const { params, returns, newline } = node;
+
+  push(`(`, node);
+  if (isArray(params)) {
+    genNodeList(params, context, option);
+  } else if (params) {
+    genNode(params, context, option);
+  }
+  push(`) => `);
+  if (newline) {
+    push(`{`);
+    indent();
+  }
+  if (returns) {
+    if (newline) {
+      push(`return `);
+    }
+    if (isArray(returns)) {
+      genNodeListAsArray(returns, context, option);
+    } else {
+      genNode(returns, context, option);
+    }
+  }
+  if (newline) {
+    deindent();
+    push(`}`);
+  }
 }
 
 function genNodeList(

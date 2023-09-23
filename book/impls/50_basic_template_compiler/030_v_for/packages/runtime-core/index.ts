@@ -39,6 +39,7 @@ export { watch, watchEffect } from "./apiWatch";
 
 export { provide, inject, type InjectionKey } from "./apiInject";
 
-export { createVNode } from "./vnode";
+export { createVNode, Fragment } from "./vnode";
 
 export { toHandlers } from "./helpers/toHandlers";
+export { renderList } from "./helpers/renderList";
