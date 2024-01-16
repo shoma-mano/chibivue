@@ -184,7 +184,9 @@ export function createRenderer(options: RendererOptions) {
           next.component = instance
           instance.vnode = next
           instance.next = null
+          toggleRecurse(instance, false)
           updateProps(instance, next.props)
+          toggleRecurse(instance, true)
         } else {
           next = vnode
         }
@@ -200,6 +202,7 @@ export function createRenderer(options: RendererOptions) {
 
     const effect = (instance.effect = new ReactiveEffect(componentUpdateFn))
     const update = (instance.update = () => effect.run())
+    toggleRecurse(instance, true)
     update()
   }
 
@@ -215,4 +218,11 @@ export function createRenderer(options: RendererOptions) {
   }
 
   return { render }
+}
+
+function toggleRecurse(
+  { effect }: ComponentInternalInstance,
+  allowed: boolean,
+) {
+  effect.allowRecurse = allowed
 }

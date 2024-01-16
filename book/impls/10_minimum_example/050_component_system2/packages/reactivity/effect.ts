@@ -7,6 +7,7 @@ export let activeEffect: ReactiveEffect | undefined
 
 export class ReactiveEffect<T = any> {
   constructor(public fn: () => T) {}
+  allowRecurse?: boolean
 
   run() {
     let parent: ReactiveEffect | undefined = activeEffect
@@ -42,6 +43,9 @@ export function trigger(target: object, key?: unknown) {
   if (dep) {
     const effects = [...dep]
     for (const effect of effects) {
+      if (!effect.allowRecurse) {
+        continue
+      }
       effect.run()
     }
   }
