@@ -38,7 +38,7 @@ export class ComputedRefImpl<T> {
     return this._value
   }
 
-  set value(newValue: T) {}
+  set value(_newValue: T) {}
 }
 
 export function computed<T>(getter: ComputedGetter<T>): ComputedRef<T> {
