@@ -743,7 +743,7 @@ import { createApp } from 'chibivue'
 const app = createApp({
   setup() {
     // Delay the processing with Promise.resolve so that DOM operations can be performed after mounting
-    Promise.resolve(() => {
+    Promise.resolve().then(() => {
       const btn = document.getElementById('btn')
       btn &&
         btn.addEventListener('click', () => {
@@ -782,3 +782,6 @@ app.mount('#app')
 
 Let's make sure it is working correctly.
 How about that? Although the functionality is limited, it is getting closer to the usual Vue developer interface.
+
+Source code up to this point:  
+[chibivue (GitHub)](https://github.com/Ubugeeei/chibivue/tree/main/book/impls/10_minimum_example/060_template_compiler2)
