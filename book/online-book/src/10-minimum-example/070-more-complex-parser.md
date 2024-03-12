@@ -189,7 +189,7 @@ export const baseParse = (
 
 ## parseChildren
 
-順番的には、(parseChildren) -> (paseElement または parseText)とパースを進めていきます。
+順番的には、(parseChildren) -> (parseElement または parseText)とパースを進めていきます。
 
 少し長いですが、parseChildren の実装からです。説明はソースコード中のコメントアウトで行います。
 
@@ -306,7 +306,7 @@ function isEnd(context: ParserContext, ancestors: ElementNode[]): boolean {
 
 ## parseText
 
-まずはシンプルな parseText の方から.一部、parseText 以外でも使うユーティリティも実装しているので少しだけ長いです。
+まずはシンプルな parseText の方から実装していきます。一部、parseText 以外でも使うユーティリティも実装しているので少しだけ長いです。
 
 ```ts
 function parseText(context: ParserContext): TextNode {
@@ -343,6 +343,13 @@ function advanceBy(context: ParserContext, numberOfCharacters: number): void {
   const { source } = context
   advancePositionWithMutation(context, source, numberOfCharacters)
   context.source = source.slice(numberOfCharacters)
+}
+
+function advanceSpaces(context: ParserContext): void {
+  const match = /^[\t\r\n\f ]+/.exec(context.source);
+  if (match) {
+    advanceBy(context, match[0].length);
+  }
 }
 
 // 少し長いですが、やっていることは単純で、 pos の計算を行っています。

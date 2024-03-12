@@ -326,13 +326,18 @@ app.mount('#app')
 `playground/vite.config.js`
 
 ```ts
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+
 import chibivue from '../../packages/@extensions/vite-plugin-chibivue'
+
+const dirname = path.dirname(fileURLToPath(new URL(import.meta.url)))
 
 export default defineConfig({
   resolve: {
     alias: {
-      chibivue: `${process.cwd()}/../../packages`,
+      chibivue: path.resolve(dirname, '../../packages'),
     },
   },
   plugins: [chibivue()],
@@ -1264,7 +1269,7 @@ export default function vitePluginChibivue(): Plugin {
       // Handling when .vue.css is loaded (when import is declared and loaded)
       if (id.match(/\.vue\.css$/)) {
         const filename = id.replace(/\.css$/, '')
-        const content = fs.readFileSync('.' + filename, 'utf-8') // Retrieve the SFC file normally
+        const content = fs.readFileSync(filename, 'utf-8') // Retrieve the SFC file normally
         const { descriptor } = parse(content, { filename }) // Parse the SFC
 
         // Join the content and return it as the result
