@@ -3,6 +3,7 @@
  * -------------------------------------------------------------------------- */
 
 :root {
+  --vp-c-brand-1: #4092aa;
   --c-blue: #4092aa;
   --c-blue-dark: #2c3e50;
   --c-blue-darker: #1e2a38;
@@ -42,9 +43,6 @@
   --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
   --vp-c-brand-text: var(--c-text-light-1);
   --c-bg-accent: var(--c-white-dark);
-
-  --vp-code-block-bg: #0d121b;
-  --vp-code-line-highlight-color: rgba(0, 0, 0, 0.075);
 }
 
 html.dark:root {
